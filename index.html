@@ -19,20 +19,21 @@
   --accent:#1d6b58;--accent-ink:#ffffff;--accent-soft:#e2f0eb;--danger:#b3261e;--danger-soft:#fbe9e7;
   --warn:#c98f00;--warn-soft:#fff4d6;--warn-ink:#7a5600;--pos:#1d7a4f;--neg:#b3261e;
   --radius:14px;--shadow:0 1px 2px rgba(20,20,20,.05),0 6px 20px rgba(20,20,20,.05);
-  --c-event:#3466c9;--c-banking:#1d7a4f;--c-travel:#c0670f;--c-health:#c0392b;--c-work:#6a4bc4;--c-personal:#b8407f;--c-other:#6b6f76;
+  --p-blue:#3466c9;--p-green:#1d7a4f;--p-orange:#c0670f;--p-red:#c0392b;--p-purple:#6a4bc4;--p-pink:#b8407f;--p-teal:#0f7f86;--p-gold:#9a7400;--p-gray:#6b6f76;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0e1012;--surface:#171a1d;--surface-2:#1f2327;--text:#e9eaeb;--muted:#9aa0a6;--border:#2a2f34;
   --accent:#4db892;--accent-ink:#06261b;--accent-soft:#16332a;--danger:#ff7b72;--danger-soft:#3a1714;
   --warn:#f2c94c;--warn-soft:#352a0c;--warn-ink:#f2c94c;--pos:#4fc98a;--neg:#ff8a80;--shadow:none;
-  --c-event:#7aa2ff;--c-banking:#4fc98a;--c-travel:#f0a04b;--c-health:#ff8a80;--c-work:#a991ff;--c-personal:#f28cc0;--c-other:#a3a8ae;
+  --p-blue:#7aa2ff;--p-green:#4fc98a;--p-orange:#f0a04b;--p-red:#ff8a80;--p-purple:#a991ff;--p-pink:#f28cc0;--p-teal:#4fd1d9;--p-gold:#f2c94c;--p-gray:#a3a8ae;
   color-scheme:dark;
 }}
 :root[data-theme="dark"]{
   --bg:#0e1012;--surface:#171a1d;--surface-2:#1f2327;--text:#e9eaeb;--muted:#9aa0a6;--border:#2a2f34;
   --accent:#4db892;--accent-ink:#06261b;--accent-soft:#16332a;--danger:#ff7b72;--danger-soft:#3a1714;
   --warn:#f2c94c;--warn-soft:#352a0c;--warn-ink:#f2c94c;--pos:#4fc98a;--neg:#ff8a80;--shadow:none;color-scheme:dark;
+  --p-blue:#7aa2ff;--p-green:#4fc98a;--p-orange:#f0a04b;--p-red:#ff8a80;--p-purple:#a991ff;--p-pink:#f28cc0;--p-teal:#4fd1d9;--p-gold:#f2c94c;--p-gray:#a3a8ae;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
@@ -104,6 +105,25 @@ main{max-width:760px;margin:0 auto;padding:16px 16px calc(96px + env(safe-area-i
 .chip{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:6px 12px;min-height:34px;cursor:pointer;font-size:14px;font-weight:500}
 .chip[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+.chip .n{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"] .n{color:inherit;opacity:.7}
+.chip.manage{border-style:dashed;color:var(--accent);font-weight:600}
+.chips.sub{margin-top:-4px}
+.chips.sub .chip{min-height:30px;padding:4px 10px;font-size:13px;background:var(--surface-2);border-color:transparent}
+.chips.sub .chip[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.sub-tag{color:var(--muted);font-weight:600}
+.f-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.f-row{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:12px;padding:8px 8px 8px 12px;background:var(--surface)}
+.f-row .grow{flex:1;min-width:0}
+.f-row .t{font-weight:600;overflow-wrap:anywhere}
+.f-row .dot{width:12px;height:12px}
+.f-row .mini{min-width:36px}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}
+.swatch{width:36px;height:36px;border-radius:50%;border:3px solid transparent;background:var(--c);cursor:pointer;padding:0}
+.swatch[aria-checked="true"]{border-color:var(--text);box-shadow:inset 0 0 0 2px var(--surface)}
+.sub-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.sub-row{display:flex;gap:6px}
+.sub-row input{flex:1}
 .stats{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:2px 2px 4px;font-variant-numeric:tabular-nums}
 .stats b{color:var(--text);font-weight:650}
 .day-h{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:18px 2px 8px}
@@ -225,12 +245,15 @@ body.veil .lock,body.veil #app,body.veil dialog{filter:blur(22px)}
       <div id="backupBanner" class="banner" hidden><span id="backupBannerText"></span><button class="btn" id="bannerBackup">Back up</button></div>
       <div class="toolbar"><input id="dSearch" type="search" placeholder="Search diary" autocomplete="off"><button class="btn primary" id="addEntry">+ Add</button></div>
       <div class="chips" id="dChips"></div>
+      <div class="chips sub" id="dSubChips"></div>
       <div class="stats" id="dStats"></div>
       <div id="diaryList"></div>
     </section>
 
     <section id="tab-pw" hidden>
       <div class="toolbar"><input id="pSearch" type="search" placeholder="Search passwords" autocomplete="off"><button class="btn primary" id="addLogin">+ Add</button></div>
+      <div class="chips" id="pChips"></div>
+      <div class="chips sub" id="pSubChips"></div>
       <div class="stats" id="pStats"></div>
       <div id="pwList"></div>
     </section>
@@ -243,6 +266,12 @@ body.veil .lock,body.veil #app,body.veil dialog{filter:blur(22px)}
         <div class="set-row"><div class="grow"><div class="t">Erase after failed unlocks</div><div class="muted sm">Wipes this device’s copy. Keep a backup first.</div></div>
           <select id="sWipe"><option value="0">Off</option><option value="10">10 tries</option><option value="20">20 tries</option></select></div>
         <div class="set-row"><div class="grow"><div class="t">Master password</div><div class="muted sm">Re-encrypts the vault with a new key</div></div><button class="btn" id="sChange">Change</button></div>
+      </div>
+
+      <h2 class="sec-h">Folders</h2>
+      <div class="set-group">
+        <div class="set-row"><div class="grow"><div class="t">Diary folders</div><div class="muted sm" id="sDFolders"></div></div><button class="btn" data-manage="diary">Manage</button></div>
+        <div class="set-row"><div class="grow"><div class="t">Password folders</div><div class="muted sm" id="sPFolders"></div></div><button class="btn" data-manage="pw">Manage</button></div>
       </div>
 
       <h2 class="sec-h">Backup &amp; sync between devices</h2>
@@ -274,7 +303,10 @@ body.veil .lock,body.veil #app,body.veil dialog{filter:blur(22px)}
       <div class="field"><label for="eDate">Date</label><input id="eDate" type="date" required></div>
       <div class="field"><label for="eTime">Time</label><input id="eTime" type="time"></div>
     </div>
-    <div class="field"><label for="eCat">Category</label><select id="eCat"></select></div>
+    <div class="grid2">
+      <div class="field"><label for="eCat">Folder</label><select id="eCat"></select></div>
+      <div class="field" id="eSubField"><label for="eSub">Subfolder</label><select id="eSub"></select></div>
+    </div>
     <div class="field"><label for="eTitle">Title</label><input id="eTitle" maxlength="200" placeholder="e.g. Paid rent, Flight to Vancouver"></div>
     <div class="grid2">
       <div class="field"><label for="eAmount">Amount</label><input id="eAmount" type="number" step="0.01" min="0" inputmode="decimal" placeholder="Optional"></div>
@@ -289,6 +321,10 @@ body.veil .lock,body.veil #app,body.veil dialog{filter:blur(22px)}
   <div class="dlg-h"><h2 id="loginTitle">New password</h2><button type="button" class="btn ghost" data-close aria-label="Close">✕</button></div>
   <div class="dlg-b">
     <div class="field"><label for="lName">Name</label><input id="lName" maxlength="120" placeholder="e.g. RBC online banking"></div>
+    <div class="grid2">
+      <div class="field"><label for="lCat">Folder</label><select id="lCat"></select></div>
+      <div class="field" id="lSubField"><label for="lSub">Subfolder</label><select id="lSub"></select></div>
+    </div>
     <div class="field"><label for="lUrl">Website</label><input id="lUrl" maxlength="300" placeholder="Optional" autocapitalize="off" spellcheck="false"></div>
     <div class="field"><label for="lUser">Username / email</label>
       <div class="pw-row"><input id="lUser" maxlength="200" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="button" class="btn" id="lCopyUser">Copy</button></div></div>
@@ -315,6 +351,29 @@ body.veil .lock,body.veil #app,body.veil dialog{filter:blur(22px)}
   <div class="dlg-f"><span class="spacer"></span><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary" id="chBtn">Change</button></div>
 </form></dialog>
 
+<dialog id="foldersDlg"><form id="foldersForm" autocomplete="off">
+  <div class="dlg-h"><h2 id="fsTitle">Folders</h2><button type="button" class="btn ghost" data-close aria-label="Close">✕</button></div>
+  <div class="dlg-b">
+    <p class="muted sm">Tap Edit to rename a folder, change its colour, add subfolders or delete it. Use ↑ ↓ to change the order.</p>
+    <div class="f-list" id="fsList"></div>
+  </div>
+  <div class="dlg-f"><button type="button" class="btn primary" id="fsNew">+ New folder</button><span class="spacer"></span><button type="button" class="btn" data-close>Done</button></div>
+</form></dialog>
+
+<dialog id="folderDlg"><form id="folderForm" autocomplete="off">
+  <div class="dlg-h"><h2 id="fTitle">New folder</h2><button type="button" class="btn ghost" data-close aria-label="Close">✕</button></div>
+  <div class="dlg-b">
+    <div class="field"><label for="fName">Folder name</label><input id="fName" maxlength="40" placeholder="e.g. Passport"></div>
+    <div class="field"><label>Colour</label><div class="swatches" id="fSwatches" role="radiogroup" aria-label="Colour"></div></div>
+    <div class="field"><label>Subfolders</label>
+      <div class="sub-rows" id="fSubs"></div>
+      <div><button type="button" class="btn" id="fAddSub">+ Add subfolder</button></div>
+    </div>
+    <p class="muted sm" id="fMeta"></p>
+  </div>
+  <div class="dlg-f"><button type="button" class="btn danger" id="fDelete">Delete</button><span class="spacer"></span><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary">Save</button></div>
+</form></dialog>
+
 <dialog id="askDlg"><form id="askForm" autocomplete="off">
   <div class="dlg-h"><h2 id="aTitle"></h2><button type="button" class="btn ghost" data-close aria-label="Close">✕</button></div>
   <div class="dlg-b">
@@ -333,12 +392,23 @@ const $$ = s => [...document.querySelectorAll(s)];
 const STORE = 'pv.vault.v1', FAILK = 'pv.fail.v1', WIPEK = 'pv.wipe.v1';
 const ITER = 600000, MAGIC = 'PrivateVault';
 const te = new TextEncoder(), td = new TextDecoder();
-const CATS = [['event','Event'],['banking','Banking'],['travel','Travel'],['health','Health'],['work','Work'],['personal','Personal'],['other','Other']];
+const PALETTE = ['blue', 'green', 'orange', 'red', 'purple', 'pink', 'teal', 'gold', 'gray'];
+// Default folders. The diary ids match the old fixed categories, so entries
+// saved before folders existed land in the right place without any rewrite.
+const DEFAULT_FOLDERS = {
+  diary: [['event', 'Event', 'blue'], ['banking', 'Banking', 'green'], ['travel', 'Travel', 'orange'], ['health', 'Health', 'red'],
+          ['work', 'Work', 'purple'], ['personal', 'Personal', 'pink'], ['other', 'Other', 'gray']],
+  pw: [['banking', 'Banking', 'green'], ['email', 'Email', 'blue'], ['social', 'Social', 'pink'],
+       ['shopping', 'Shopping', 'orange'], ['work', 'Work', 'purple'], ['other', 'Other', 'gray']]
+};
+const KIND = { diary: { list: 'entries', label: 'Diary', noun: 'entry', nouns: 'entries' },
+               pw: { list: 'logins', label: 'Password', noun: 'login', nouns: 'logins' } };
+const UNFILED = { id: '', name: 'Unfiled', color: 'gray', subs: [] };
 
 let S = null;              // unlocked state: {key, salt, iter, data} — only in memory
 let lastAct = Date.now(), hiddenAt = 0, clipTimer = 0, lockTick = 0;
-let editId = null, editLoginId = null;
-const ui = { tab: 'diary', dq: '', dcat: 'all', pq: '' };
+let editId = null, editLoginId = null, fDraft = null, fsKind = 'diary';
+const ui = { tab: 'diary', diary: { q: '', cat: 'all', sub: 'all' }, pw: { q: '', cat: 'all', sub: 'all' } };
 
 /* ---------- storage ---------- */
 const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
@@ -379,6 +449,14 @@ function normalize(d) {
   d.entries = Array.isArray(d.entries) ? d.entries : [];
   d.logins = Array.isArray(d.logins) ? d.logins : [];
   d.settings = Object.assign({ autoLock: 5, cur: '$', lastBackup: 0 }, d.settings || {});
+  d.folders = d.folders && typeof d.folders === 'object' ? d.folders : {};
+  for (const kind of Object.keys(DEFAULT_FOLDERS)) {
+    if (!Array.isArray(d.folders[kind])) {
+      // updated: 0 so a folder edited or deleted on another device always wins a merge
+      d.folders[kind] = DEFAULT_FOLDERS[kind].map(([id, name, color], i) => ({ id, name, color, order: i, subs: [], updated: 0 }));
+    }
+    d.folders[kind].forEach(f => { if (!Array.isArray(f.subs)) f.subs = []; });
+  }
   return d;
 }
 async function persist() {
@@ -441,11 +519,82 @@ function fmtDay(s) {
 }
 function fmtTime(t) { if (!t) return ''; const [H, M] = t.split(':').map(Number); return new Date(2000, 0, 1, H, M).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }); }
 const money = n => (S.data.settings.cur || '$') + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const catOf = k => CATS.find(c => c[0] === k) || CATS[CATS.length - 1];
+/* ---------- folders ---------- */
+const live = arr => (arr || []).filter(x => !x.deleted);
+const folders = kind => live(S.data.folders[kind]).sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || a.name.localeCompare(b.name));
+const subsOf = f => live(f && f.subs);
+// The item's folder and subfolder. A folder or subfolder that was deleted
+// leaves its items in place: they show as Unfiled / no subfolder.
+function placeOf(kind, it) {
+  const f = folders(kind).find(x => x.id === (it.cat || '')) || UNFILED;
+  const s = f.id ? subsOf(f).find(x => x.id === it.sub) || null : null;
+  return { f, s };
+}
+const placeLabel = p => p.f.name + (p.s ? ' › ' + p.s.name : '');
+const items = kind => live(S.data[KIND[kind].list]);
+function matchesFolder(kind, it) {
+  const sel = ui[kind];
+  if (sel.cat === 'all') return true;
+  const p = placeOf(kind, it);
+  if (p.f.id !== sel.cat) return false;
+  return sel.sub === 'all' || (sel.sub === '' ? !p.s : p.s && p.s.id === sel.sub);
+}
+function validSelection(kind) {
+  const sel = ui[kind];
+  if (sel.cat === 'all') { sel.sub = 'all'; return; }
+  const f = sel.cat === '' ? UNFILED : folders(kind).find(x => x.id === sel.cat);
+  if (!f) { sel.cat = 'all'; sel.sub = 'all'; return; }
+  if (sel.sub !== 'all' && sel.sub !== '' && !subsOf(f).some(s => s.id === sel.sub)) sel.sub = 'all';
+}
+function renderFolderChips(kind) {
+  validSelection(kind);
+  const sel = ui[kind], all = items(kind);
+  const count = new Map();
+  all.forEach(it => { const id = placeOf(kind, it).f.id; count.set(id, (count.get(id) || 0) + 1); });
+  const rerender = () => { renderFolderChips(kind); kind === 'diary' ? renderDiary() : renderLogins(); };
+  const chip = (label, pressed, onclick, color, n) => h('button', { class: 'chip', 'aria-pressed': String(pressed), onclick },
+    color ? h('span', { class: 'dot', style: `--c:var(--p-${color})` }) : null, label, n != null ? h('span', { class: 'n' }, n) : null);
+  const list = [chip('All', sel.cat === 'all', () => { sel.cat = 'all'; sel.sub = 'all'; rerender(); }, null, all.length || null)];
+  for (const f of folders(kind)) list.push(chip(f.name, sel.cat === f.id, () => { sel.cat = f.id; sel.sub = 'all'; rerender(); }, f.color, count.get(f.id) || null));
+  if (count.get('')) list.push(chip('Unfiled', sel.cat === '', () => { sel.cat = ''; sel.sub = 'all'; rerender(); }, 'gray', count.get('')));
+  list.push(h('button', { class: 'chip manage', onclick: () => openFolders(kind) }, '✎ Folders'));
+  $(kind === 'diary' ? '#dChips' : '#pChips').replaceChildren(...list);
+
+  const subBox = $(kind === 'diary' ? '#dSubChips' : '#pSubChips');
+  const f = sel.cat && sel.cat !== 'all' ? folders(kind).find(x => x.id === sel.cat) : null;
+  const subs = subsOf(f);
+  if (!f || !subs.length) { subBox.replaceChildren(); subBox.hidden = true; return; }
+  const inF = all.filter(it => placeOf(kind, it).f.id === f.id);
+  const sc = new Map(); inF.forEach(it => { const s = placeOf(kind, it).s; const k = s ? s.id : ''; sc.set(k, (sc.get(k) || 0) + 1); });
+  const sl = [chip('All in ' + f.name, sel.sub === 'all', () => { sel.sub = 'all'; rerender(); }, null, inF.length || null)];
+  for (const s of subs) sl.push(chip(s.name, sel.sub === s.id, () => { sel.sub = s.id; rerender(); }, null, sc.get(s.id) || null));
+  if (sc.get('')) sl.push(chip('No subfolder', sel.sub === '', () => { sel.sub = ''; rerender(); }, null, sc.get('')));
+  subBox.replaceChildren(...sl); subBox.hidden = false;
+}
+// Folder + subfolder pickers in the entry and login dialogs.
+function fillPickers(kind, catSel, subSel, subField, cat, sub) {
+  const fs = folders(kind);
+  catSel.replaceChildren(...fs.map(f => h('option', { value: f.id }, f.name)), h('option', { value: '' }, '— No folder —'));
+  catSel.value = fs.some(f => f.id === cat) ? cat : (cat === '' || !fs.length ? '' : fs[0].id);
+  const fillSubs = keep => {
+    const f = fs.find(x => x.id === catSel.value), subs = subsOf(f);
+    subSel.replaceChildren(h('option', { value: '' }, '— None —'), ...subs.map(s => h('option', { value: s.id }, s.name)));
+    subSel.value = subs.some(s => s.id === keep) ? keep : '';
+    subField.hidden = !subs.length;
+  };
+  catSel.onchange = () => fillSubs('');
+  fillSubs(sub);
+}
+// Defaults for a new item: whatever folder/subfolder the list is filtered to.
+function newPlace(kind, fallback) {
+  const sel = ui[kind];
+  if (sel.cat === 'all') return { cat: fallback, sub: '' };
+  return { cat: sel.cat, sub: sel.sub === 'all' ? '' : sel.sub };
+}
 
 function toast(msg, kind) {
   $$('.toast').forEach(x => x.remove());
-  const host = document.querySelector('dialog[open]') || document.body;
+  const host = $$('dialog[open]').pop() || document.body;   // top-most dialog, or the page
   const t = h('div', { class: 'toast' + (kind === 'err' ? ' err' : ''), role: 'status' }, msg);
   host.append(t);
   setTimeout(() => t.classList.add('out'), 2400);
@@ -513,11 +662,12 @@ function showLock(msg, kind) {
 function resetToggles() { $$('[data-toggle]').forEach(b => { const i = document.getElementById(b.dataset.toggle); if (i) i.type = 'password'; b.textContent = 'Show'; }); }
 
 function lock(msg) {
-  S = null; editId = editLoginId = null; ui.dq = ''; ui.pq = '';
+  S = null; editId = editLoginId = null; ui.diary.q = ''; ui.pw.q = ''; fDraft = null;
   clearTimeout(clipTimer);
   $$('dialog').forEach(d => { if (d.open) d.close(); });
   $$('#app input, dialog input, dialog textarea').forEach(i => { if (i.type !== 'checkbox' && i.id !== 'sCur') i.value = ''; });
-  ['#diaryList', '#pwList', '#dStats', '#pStats', '#dChips'].forEach(s => $(s).replaceChildren());
+  ['#diaryList', '#pwList', '#dStats', '#pStats', '#dChips', '#dSubChips', '#pChips', '#pSubChips', '#fsList', '#fSubs',
+   '#eCat', '#eSub', '#lCat', '#lSub'].forEach(s => $(s).replaceChildren());
   resetToggles();
   $('#app').hidden = true;
   showLock(msg);
@@ -588,7 +738,7 @@ function enterApp() {
   $('#lockScreen').hidden = true; $('#app').hidden = false; lastAct = Date.now();
   showTab(ui.tab); renderAll();
 }
-function renderAll() { renderChips(); renderDiary(); renderLogins(); renderSettings(); renderBanner(); }
+function renderAll() { renderFolderChips('diary'); renderFolderChips('pw'); renderDiary(); renderLogins(); renderSettings(); renderBanner(); }
 function showTab(t) {
   ui.tab = t;
   $$('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
@@ -603,18 +753,13 @@ function upsert(k, obj) { obj.updated = Date.now(); const arr = S.data[k]; const
 function tomb(k, id) { const arr = S.data[k]; const t = { id, deleted: true, updated: Date.now() }; const i = arr.findIndex(x => x.id === id); if (i >= 0) arr[i] = t; else arr.push(t); }
 
 /* diary */
-function renderChips() {
-  $('#dChips').replaceChildren(...[['all', 'All'], ...CATS].map(([k, l]) =>
-    h('button', { class: 'chip', 'aria-pressed': String(ui.dcat === k), onclick: () => { ui.dcat = k; renderChips(); renderDiary(); } },
-      k !== 'all' ? h('span', { class: 'dot', style: `--c:var(--c-${k})` }) : null, l)));
-}
 function renderDiary() {
   const list = $('#diaryList'); list.replaceChildren();
-  const q = ui.dq.trim().toLowerCase();
+  const q = ui.diary.q.trim().toLowerCase();
   let items = S.data.entries.filter(x => !x.deleted);
   const total = items.length;
-  if (ui.dcat !== 'all') items = items.filter(x => x.cat === ui.dcat);
-  if (q) items = items.filter(x => [x.title, x.notes, catOf(x.cat)[1], x.date, x.amount ?? ''].join(' ').toLowerCase().includes(q));
+  items = items.filter(x => matchesFolder('diary', x));
+  if (q) items = items.filter(x => [x.title, x.notes, placeLabel(placeOf('diary', x)), x.date, x.amount ?? ''].join(' ').toLowerCase().includes(q));
   items.sort((a, b) => (b.date + (b.time || '')).localeCompare(a.date + (a.time || '')) || (b.updated - a.updated));
 
   let out = 0, inn = 0;
@@ -628,24 +773,24 @@ function renderDiary() {
   let cur = null, group;
   for (const it of items) {
     if (it.date !== cur) { cur = it.date; group = h('section', null, h('h3', { class: 'day-h' }, fmtDay(it.date))); list.append(group); }
-    const c = catOf(it.cat);
+    const p = placeOf('diary', it);
     group.append(h('button', { class: 'card', onclick: () => openEntry(it.id) },
       h('div', { class: 'row1' },
-        h('span', { class: 'pill', style: `--c:var(--c-${c[0]})` }, c[1]),
+        h('span', { class: 'pill', style: `--c:var(--p-${p.f.color})` }, p.f.name, p.s ? h('span', { class: 'sub-tag' }, '› ' + p.s.name) : null),
         it.time ? h('span', { class: 'muted sm' }, fmtTime(it.time)) : null,
         it.amount != null ? h('span', { class: 'amt ' + (it.flow === 'in' ? 'pos' : 'neg') }, (it.flow === 'in' ? '+' : '−') + money(it.amount)) : null),
       h('div', { class: 'title' }, it.title || '(untitled)'),
       it.notes ? h('div', { class: 'notes' }, it.notes) : null));
   }
 }
-$('#eCat').replaceChildren(...CATS.map(([k, l]) => h('option', { value: k }, l)));
 function openEntry(id) {
   const it = id ? S.data.entries.find(x => x.id === id && !x.deleted) : null;
   editId = it ? it.id : null;
   $('#entryTitle').textContent = it ? 'Edit entry' : 'New entry';
   $('#eDate').value = it ? it.date : todayStr();
   $('#eTime').value = it ? (it.time || '') : nowTime();
-  $('#eCat').value = it ? it.cat : (ui.dcat !== 'all' ? ui.dcat : 'event');
+  const np = it ? { cat: placeOf('diary', it).f.id, sub: it.sub || '' } : newPlace('diary', 'event');
+  fillPickers('diary', $('#eCat'), $('#eSub'), $('#eSubField'), np.cat, np.sub);
   $('#eTitle').value = it ? it.title : '';
   $('#eAmount').value = it && it.amount != null ? it.amount : '';
   $('#eFlow').value = it ? (it.flow || 'out') : 'out';
@@ -654,7 +799,7 @@ function openEntry(id) {
   $('#entryDlg').showModal();
 }
 $('#addEntry').onclick = () => openEntry(null);
-$('#dSearch').addEventListener('input', e => { ui.dq = e.target.value; renderDiary(); });
+$('#dSearch').addEventListener('input', e => { ui.diary.q = e.target.value; renderDiary(); });
 $('#entryForm').addEventListener('submit', async e => {
   e.preventDefault(); if (!S) return;
   const title = $('#eTitle').value.trim(), date = $('#eDate').value, amt = $('#eAmount').value.trim();
@@ -662,24 +807,25 @@ $('#entryForm').addEventListener('submit', async e => {
   const n = amt === '' ? null : Math.abs(Number(amt));
   if (n !== null && !isFinite(n)) return toast('Amount must be a number', 'err');
   const old = editId ? S.data.entries.find(x => x.id === editId) : null;
-  upsert('entries', { id: editId || newId(), created: old?.created || Date.now(), date, time: $('#eTime').value, cat: $('#eCat').value, title, amount: n, flow: $('#eFlow').value, notes: $('#eNotes').value.trim() });
-  if (await persist()) { $('#entryDlg').close(); renderDiary(); renderBanner(); toast('Saved'); }
+  upsert('entries', { id: editId || newId(), created: old?.created || Date.now(), date, time: $('#eTime').value, cat: $('#eCat').value, sub: $('#eSubField').hidden ? '' : $('#eSub').value, title, amount: n, flow: $('#eFlow').value, notes: $('#eNotes').value.trim() });
+  if (await persist()) { $('#entryDlg').close(); renderFolderChips('diary'); renderDiary(); renderBanner(); toast('Saved'); }
 });
 $('#eDelete').onclick = async () => {
   if (!editId) return;
   const ok = await ask({ title: 'Delete this entry?', msg: 'This can’t be undone.', ok: 'Delete', danger: true });
   if (!ok || !S) return;
   tomb('entries', editId);
-  if (await persist()) { $('#entryDlg').close(); renderDiary(); toast('Deleted'); }
+  if (await persist()) { $('#entryDlg').close(); renderFolderChips('diary'); renderDiary(); toast('Deleted'); }
 };
 
 /* passwords */
 function renderLogins() {
   const list = $('#pwList'); list.replaceChildren();
   const all = S.data.logins.filter(x => !x.deleted);
-  const q = ui.pq.trim().toLowerCase();
+  const q = ui.pw.q.trim().toLowerCase();
   const counts = new Map(); all.forEach(x => { if (x.pass) counts.set(x.pass, (counts.get(x.pass) || 0) + 1); });
-  let items = q ? all.filter(x => [x.name, x.user, x.url].join(' ').toLowerCase().includes(q)) : all;
+  let items = all.filter(x => matchesFolder('pw', x));
+  if (q) items = items.filter(x => [x.name, x.user, x.url, placeLabel(placeOf('pw', x))].join(' ').toLowerCase().includes(q));
   items.sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }));
   const reused = all.filter(x => counts.get(x.pass) > 1).length, weak = all.filter(x => x.pass && strength(x.pass).lvl <= 2).length;
   const st = all.length ? [h('span', null, h('b', null, all.length), all.length === 1 ? ' login' : ' logins')] : [];
@@ -691,10 +837,12 @@ function renderLogins() {
     const badges = [];
     if (counts.get(it.pass) > 1) badges.push(h('span', { class: 'badge' }, 'Reused'));
     else if (it.pass && strength(it.pass).lvl <= 2) badges.push(h('span', { class: 'badge' }, 'Weak'));
+    const p = placeOf('pw', it);
     list.append(h('div', { class: 'card login' },
       h('button', { class: 'login-main', onclick: () => openLogin(it.id) },
-        h('div', { class: 'avatar' }, ((it.name || '?').trim()[0] || '?').toUpperCase()),
-        h('div', { class: 'login-text' }, h('div', { class: 'title' }, it.name || '(no name)', ...badges), h('div', { class: 'muted sm' }, it.user || it.url || ''))),
+        h('div', { class: 'avatar', style: `background:color-mix(in srgb,var(--p-${p.f.color}) 16%,transparent);color:var(--p-${p.f.color})` }, ((it.name || '?').trim()[0] || '?').toUpperCase()),
+        h('div', { class: 'login-text' }, h('div', { class: 'title' }, it.name || '(no name)', ...badges),
+          h('div', { class: 'muted sm' }, [placeLabel(p), it.user || it.url || ''].filter(Boolean).join('  ·  ')))),
       h('div', { class: 'login-actions' },
         it.user ? h('button', { class: 'mini', onclick: () => copy(it.user, 'Username') }, 'User') : null,
         h('button', { class: 'mini', onclick: () => copy(it.pass, 'Password') }, 'Pass'))));
@@ -706,6 +854,8 @@ function openLogin(id) {
   editLoginId = it ? it.id : null;
   $('#loginTitle').textContent = it ? 'Edit password' : 'New password';
   $('#lName').value = it ? it.name : ''; $('#lUrl').value = it ? (it.url || '') : '';
+  const np = it ? { cat: placeOf('pw', it).f.id, sub: it.sub || '' } : newPlace('pw', '');
+  fillPickers('pw', $('#lCat'), $('#lSub'), $('#lSubField'), np.cat, np.sub);
   $('#lUser').value = it ? (it.user || '') : ''; $('#lPass').value = it ? (it.pass || '') : '';
   $('#lNotes').value = it ? (it.notes || '') : '';
   $('#lMeta').textContent = it && it.passChanged ? 'Password last changed ' + new Date(it.passChanged).toLocaleDateString() : '';
@@ -714,7 +864,7 @@ function openLogin(id) {
   $('#loginDlg').showModal();
 }
 $('#addLogin').onclick = () => openLogin(null);
-$('#pSearch').addEventListener('input', e => { ui.pq = e.target.value; renderLogins(); });
+$('#pSearch').addEventListener('input', e => { ui.pw.q = e.target.value; renderLogins(); });
 $('#lGen').onclick = () => { $('#lPass').value = genPw(20); $('#lPass').type = 'text'; $('[data-toggle="lPass"]').textContent = 'Hide'; updLoginMeter(); };
 $('#lCopyPass').onclick = () => copy($('#lPass').value, 'Password');
 $('#lCopyUser').onclick = () => copy($('#lUser').value, 'Username');
@@ -724,15 +874,15 @@ $('#loginForm').addEventListener('submit', async e => {
   if (!name) return toast('Give it a name', 'err');
   if (!pass) return toast('Enter or generate a password', 'err');
   const old = editLoginId ? S.data.logins.find(x => x.id === editLoginId) : null;
-  upsert('logins', { id: editLoginId || newId(), created: old?.created || Date.now(), name, url: $('#lUrl').value.trim(), user: $('#lUser').value.trim(), pass, notes: $('#lNotes').value.trim(), passChanged: old && old.pass === pass ? (old.passChanged || old.created) : Date.now() });
-  if (await persist()) { $('#loginDlg').close(); renderLogins(); renderBanner(); toast('Saved'); }
+  upsert('logins', { id: editLoginId || newId(), created: old?.created || Date.now(), name, cat: $('#lCat').value, sub: $('#lSubField').hidden ? '' : $('#lSub').value, url: $('#lUrl').value.trim(), user: $('#lUser').value.trim(), pass, notes: $('#lNotes').value.trim(), passChanged: old && old.pass === pass ? (old.passChanged || old.created) : Date.now() });
+  if (await persist()) { $('#loginDlg').close(); renderFolderChips('pw'); renderLogins(); renderBanner(); toast('Saved'); }
 });
 $('#lDelete').onclick = async () => {
   if (!editLoginId) return;
   const ok = await ask({ title: 'Delete this password?', msg: 'This can’t be undone.', ok: 'Delete', danger: true });
   if (!ok || !S) return;
   tomb('logins', editLoginId);
-  if (await persist()) { $('#loginDlg').close(); renderLogins(); toast('Deleted'); }
+  if (await persist()) { $('#loginDlg').close(); renderFolderChips('pw'); renderLogins(); toast('Deleted'); }
 };
 
 /* settings */
@@ -741,7 +891,111 @@ function renderSettings() {
   $('#sAuto').value = String(st.autoLock); $('#sCur').value = st.cur || '$';
   $('#sWipe').value = lsGet(WIPEK) || '0';
   $('#sLastBackup').textContent = st.lastBackup ? 'Last backup: ' + new Date(st.lastBackup).toLocaleString() : 'Never backed up';
+  const sum = kind => { const fs = folders(kind), n = fs.reduce((a, f) => a + subsOf(f).length, 0);
+    return `${fs.length} folder${fs.length === 1 ? '' : 's'}` + (n ? `, ${n} subfolder${n === 1 ? '' : 's'}` : ''); };
+  $('#sDFolders').textContent = sum('diary'); $('#sPFolders').textContent = sum('pw');
 }
+
+/* folder manager */
+function openFolders(kind) {
+  fsKind = kind;
+  $('#fsTitle').textContent = KIND[kind].label + ' folders';
+  renderFolderList();
+  if (!$('#foldersDlg').open) $('#foldersDlg').showModal();
+}
+function renderFolderList() {
+  const kind = fsKind, fs = folders(kind);
+  const n = new Map(); items(kind).forEach(it => { const id = placeOf(kind, it).f.id; n.set(id, (n.get(id) || 0) + 1); });
+  $('#fsList').replaceChildren(...(fs.length ? fs.map((f, i) => {
+    const subs = subsOf(f);
+    const info = [`${n.get(f.id) || 0} ${n.get(f.id) === 1 ? KIND[kind].noun : KIND[kind].nouns}`]
+      .concat(subs.length ? [subs.map(s => s.name).join(', ')] : []).join('  ·  ');
+    return h('div', { class: 'f-row' },
+      h('span', { class: 'dot', style: `--c:var(--p-${f.color})` }),
+      h('div', { class: 'grow' }, h('div', { class: 't' }, f.name), h('div', { class: 'muted sm' }, info)),
+      h('button', { type: 'button', class: 'mini', 'aria-label': 'Move up', disabled: i === 0 || null, onclick: () => moveFolder(f.id, -1) }, '↑'),
+      h('button', { type: 'button', class: 'mini', 'aria-label': 'Move down', disabled: i === fs.length - 1 || null, onclick: () => moveFolder(f.id, 1) }, '↓'),
+      h('button', { type: 'button', class: 'mini', onclick: () => openFolder(f.id) }, 'Edit'));
+  }) : [emptyState('No folders.', 'Tap “+ New folder” to add one.')]));
+}
+async function moveFolder(id, dir) {
+  const fs = folders(fsKind), i = fs.findIndex(f => f.id === id), j = i + dir;
+  if (i < 0 || j < 0 || j >= fs.length) return;
+  [fs[i], fs[j]] = [fs[j], fs[i]];
+  const now = Date.now();
+  fs.forEach((f, k) => { if (f.order !== k) { f.order = k; f.updated = now; } });
+  if (await persist()) { renderFolderList(); renderAll(); }
+}
+$$('[data-manage]').forEach(b => b.addEventListener('click', () => openFolders(b.dataset.manage)));
+$('#fsNew').onclick = () => openFolder(null);
+
+/* folder editor */
+function openFolder(id) {
+  const f = id ? folders(fsKind).find(x => x.id === id) : null;
+  const used = new Set(folders(fsKind).map(x => x.color));
+  fDraft = { id: f ? f.id : null, name: f ? f.name : '', color: f ? f.color : (PALETTE.find(c => !used.has(c)) || 'blue'),
+             subs: subsOf(f).map(s => ({ id: s.id, name: s.name })) };
+  $('#fTitle').textContent = f ? 'Edit folder' : 'New folder';
+  $('#fName').value = fDraft.name;
+  const n = f ? items(fsKind).filter(it => placeOf(fsKind, it).f.id === f.id).length : 0;
+  $('#fMeta').textContent = f ? `${n} ${n === 1 ? KIND[fsKind].noun : KIND[fsKind].nouns} in this folder.` : '';
+  $('#fDelete').hidden = !f;
+  renderSwatches(); renderSubRows();
+  $('#folderDlg').showModal();
+  if (!f) setTimeout(() => $('#fName').focus(), 30);
+}
+function renderSwatches() {
+  $('#fSwatches').replaceChildren(...PALETTE.map(c => h('button', {
+    type: 'button', class: 'swatch', role: 'radio', 'aria-label': c, 'aria-checked': String(fDraft.color === c),
+    style: `--c:var(--p-${c})`, onclick: () => { fDraft.color = c; renderSwatches(); } })));
+}
+function renderSubRows() {
+  $('#fSubs').replaceChildren(...fDraft.subs.map((s, i) => h('div', { class: 'sub-row' },
+    h('input', { value: s.name, maxlength: '40', placeholder: 'Subfolder name', 'aria-label': 'Subfolder name',
+                 oninput: e => { s.name = e.target.value; } }),
+    h('button', { type: 'button', class: 'btn danger', 'aria-label': 'Remove subfolder', onclick: () => { fDraft.subs.splice(i, 1); renderSubRows(); } }, '✕'))));
+  // h() sets attributes, so put the live values in explicitly
+  $$('#fSubs input').forEach((inp, i) => { inp.value = fDraft.subs[i].name; });
+}
+$('#fAddSub').onclick = () => {
+  fDraft.subs.push({ id: null, name: '' }); renderSubRows();
+  const ins = $$('#fSubs input'); ins[ins.length - 1].focus();
+};
+$('#folderForm').addEventListener('submit', async e => {
+  e.preventDefault(); if (!S || !fDraft) return;
+  const name = $('#fName').value.trim();
+  if (!name) return toast('Give the folder a name', 'err');
+  const kind = fsKind, arr = S.data.folders[kind], now = Date.now();
+  if (folders(kind).some(f => f.id !== fDraft.id && f.name.toLowerCase() === name.toLowerCase())) return toast('A folder with that name already exists', 'err');
+  const subNames = fDraft.subs.map(s => s.name.trim()).filter(Boolean);
+  if (new Set(subNames.map(s => s.toLowerCase())).size !== subNames.length) return toast('Two subfolders have the same name', 'err');
+  let f = fDraft.id ? arr.find(x => x.id === fDraft.id) : null;
+  if (!f) { f = { id: newId(), order: folders(kind).length, subs: [] }; arr.push(f); }
+  f.name = name; f.color = fDraft.color; f.updated = now;
+  const keep = new Set();
+  for (const d of fDraft.subs) {
+    const nm = d.name.trim(); if (!nm) continue;
+    let s = d.id && f.subs.find(x => x.id === d.id);
+    if (!s) { s = { id: newId() }; f.subs.push(s); }
+    if (s.name !== nm || s.deleted) { s.name = nm; delete s.deleted; s.updated = now; }
+    keep.add(s.id);
+  }
+  // removed subfolders become tombstones so the removal syncs; their items stay, with no subfolder
+  f.subs.forEach(s => { if (!keep.has(s.id) && !s.deleted) { s.deleted = true; s.updated = now; } });
+  if (await persist()) { $('#folderDlg').close(); fDraft = null; renderFolderList(); renderAll(); toast('Folder saved'); }
+});
+$('#fDelete').onclick = async () => {
+  if (!fDraft || !fDraft.id) return;
+  const kind = fsKind, f = S.data.folders[kind].find(x => x.id === fDraft.id); if (!f) return;
+  const n = items(kind).filter(it => placeOf(kind, it).f.id === f.id).length;
+  const ok = await ask({ title: `Delete “${f.name}”?`, ok: 'Delete folder', danger: true,
+    msg: n ? `Its ${n} ${n === 1 ? KIND[kind].noun : KIND[kind].nouns} will NOT be deleted — they move to “Unfiled”, where you can give them a new folder.` : 'The folder is empty.' });
+  if (!ok || !S) return;
+  const now = Date.now();
+  f.deleted = true; f.updated = now;
+  if (ui[kind].cat === f.id) { ui[kind].cat = 'all'; ui[kind].sub = 'all'; }
+  if (await persist()) { $('#folderDlg').close(); fDraft = null; renderFolderList(); renderAll(); toast('Folder deleted'); }
+};
 function renderBanner() {
   const st = S.data.settings, has = S.data.entries.some(x => !x.deleted) || S.data.logins.some(x => !x.deleted);
   const stale = !st.lastBackup || Date.now() - st.lastBackup > 7 * 864e5;
@@ -776,6 +1030,24 @@ function merge(d) {
       else if ((x.updated || 0) > (y.updated || 0)) { m.set(x.id, x); updated++; }
     }
     S.data[k] = [...m.values()];
+  }
+  // Folders: newest edit wins per folder, and per subfolder inside it, so a
+  // subfolder added on the phone and one added on the laptop both survive.
+  const newer = (a, b) => (a.updated || 0) > (b.updated || 0);
+  for (const kind of Object.keys(DEFAULT_FOLDERS)) {
+    const mine = S.data.folders[kind];
+    for (const x of ((d.folders || {})[kind] || [])) {
+      if (!x || !x.id) continue;
+      const y = mine.find(f => f.id === x.id);
+      if (!y) { mine.push(JSON.parse(JSON.stringify(x))); continue; }
+      const subs = y.subs || [];
+      for (const xs of (x.subs || [])) {
+        const ys = subs.find(s => s.id === xs.id);
+        if (!ys) subs.push({ ...xs }); else if (newer(xs, ys)) Object.assign(ys, xs);
+      }
+      if (newer(x, y)) { const { subs: _, ...rest } = x; Object.assign(y, rest); if (!x.deleted) delete y.deleted; }
+      y.subs = subs;
+    }
   }
   return { added, updated };
 }
