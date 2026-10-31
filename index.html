@@ -124,6 +124,23 @@ main{max-width:760px;margin:0 auto;padding:16px 16px calc(96px + env(safe-area-i
 .sub-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
 .sub-row{display:flex;gap:6px}
 .sub-row input{flex:1}
+/* to-do */
+.seg{display:flex;gap:4px;padding:4px;margin-bottom:12px;background:var(--surface-2);border-radius:12px}
+.seg-b{flex:1;border:0;background:transparent;border-radius:9px;min-height:40px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg-b[aria-pressed="true"]{background:var(--surface);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.seg-b .n{margin-left:4px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.card.todo{display:flex;align-items:flex-start;gap:6px;padding:8px 12px 8px 4px;cursor:default}
+.tick{width:44px;height:44px;flex:none;display:grid;place-items:center;background:none;border:0;padding:0;cursor:pointer}
+.tick i{width:26px;height:26px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;font-style:normal;font-size:15px;font-weight:800;color:transparent}
+.tick:hover i{border-color:var(--accent)}
+.tick.on i{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.todo-main{flex:1;min-width:0;background:none;border:0;padding:10px 0 4px;text-align:left;cursor:pointer}
+.todo-main .title{margin-top:0}
+.card.todo.done .title{text-decoration:line-through;color:var(--muted)}
+.due-late{color:var(--danger);font-weight:600}
+.day-h.late{color:var(--danger)}
+.tab-n{display:inline-block;min-width:20px;padding:0 6px;margin-left:6px;border-radius:999px;background:var(--surface-2);color:var(--text);font-size:12px;line-height:20px;font-variant-numeric:tabular-nums}
+.tab-n.late{background:var(--danger);color:#fff}
 .stats{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:2px 2px 4px;font-variant-numeric:tabular-nums}
 .stats b{color:var(--text);font-weight:650}
 .day-h{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:18px 2px 8px}
@@ -236,6 +253,7 @@ body.veil .lock,body.veil #app,body.veil dialog{filter:blur(22px)}
 
   <nav class="tabs" role="tablist">
     <button class="tab" role="tab" data-tab="diary" aria-selected="true">Diary</button>
+    <button class="tab" role="tab" data-tab="todo" aria-selected="false">To Do</button>
     <button class="tab" role="tab" data-tab="pw" aria-selected="false">Passwords</button>
     <button class="tab" role="tab" data-tab="settings" aria-selected="false">Settings</button>
   </nav>
@@ -248,6 +266,15 @@ body.veil .lock,body.veil #app,body.veil dialog{filter:blur(22px)}
       <div class="chips sub" id="dSubChips"></div>
       <div class="stats" id="dStats"></div>
       <div id="diaryList"></div>
+    </section>
+
+    <section id="tab-todo" hidden>
+      <div class="toolbar"><input id="tSearch" type="search" placeholder="Search to-dos" autocomplete="off"><button class="btn primary" id="addTodo">+ Add</button></div>
+      <div class="seg" id="tSeg">
+        <button class="seg-b" data-view="open" aria-pressed="true">To Do<span class="n" id="tOpenN"></span></button>
+        <button class="seg-b" data-view="done" aria-pressed="false">Done<span class="n" id="tDoneN"></span></button>
+      </div>
+      <div id="todoList"></div>
     </section>
 
     <section id="tab-pw" hidden>
@@ -315,6 +342,22 @@ body.veil .lock,body.veil #app,body.veil dialog{filter:blur(22px)}
     <div class="field"><label for="eNotes">Details</label><textarea id="eNotes" placeholder="Booking ref, who, where… (for accounts, only the last 4 digits)"></textarea></div>
   </div>
   <div class="dlg-f"><button type="button" class="btn danger" id="eDelete">Delete</button><span class="spacer"></span><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary">Save</button></div>
+</form></dialog>
+
+<dialog id="todoDlg"><form id="todoForm" autocomplete="off">
+  <div class="dlg-h"><h2 id="todoTitle">New to-do</h2><button type="button" class="btn ghost" data-close aria-label="Close">✕</button></div>
+  <div class="dlg-b">
+    <div class="field"><label for="tdDate">Date</label><input id="tdDate" type="date" required></div>
+    <div class="field"><label for="tdTitle">What to do</label><input id="tdTitle" maxlength="200" placeholder="e.g. Renew passport, pay credit card bill"></div>
+    <div class="field"><label for="tdNotes">Details</label><textarea id="tdNotes" placeholder="Optional"></textarea></div>
+    <div class="field"><label>Status</label>
+      <div class="seg" id="tdStatus" style="margin-bottom:0">
+        <button type="button" class="seg-b" data-status="open" aria-pressed="true">To Do</button>
+        <button type="button" class="seg-b" data-status="done" aria-pressed="false">Done</button>
+      </div></div>
+    <p class="muted sm" id="tdMeta"></p>
+  </div>
+  <div class="dlg-f"><button type="button" class="btn danger" id="tdDelete">Delete</button><span class="spacer"></span><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary">Save</button></div>
 </form></dialog>
 
 <dialog id="loginDlg"><form id="loginForm" autocomplete="off">
@@ -408,7 +451,8 @@ const UNFILED = { id: '', name: 'Unfiled', color: 'gray', subs: [] };
 let S = null;              // unlocked state: {key, salt, iter, data} — only in memory
 let lastAct = Date.now(), hiddenAt = 0, clipTimer = 0, lockTick = 0;
 let editId = null, editLoginId = null, fDraft = null, fsKind = 'diary';
-const ui = { tab: 'diary', diary: { q: '', cat: 'all', sub: 'all' }, pw: { q: '', cat: 'all', sub: 'all' } };
+const ui = { tab: 'diary', diary: { q: '', cat: 'all', sub: 'all' }, pw: { q: '', cat: 'all', sub: 'all' }, todo: { q: '', view: 'open' } };
+let editTodoId = null, tdStatus = 'open';
 
 /* ---------- storage ---------- */
 const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
@@ -448,6 +492,7 @@ function normalize(d) {
   d = d && typeof d === 'object' ? d : {};
   d.entries = Array.isArray(d.entries) ? d.entries : [];
   d.logins = Array.isArray(d.logins) ? d.logins : [];
+  d.todos = Array.isArray(d.todos) ? d.todos : [];
   d.settings = Object.assign({ autoLock: 5, cur: '$', lastBackup: 0 }, d.settings || {});
   d.folders = d.folders && typeof d.folders === 'object' ? d.folders : {};
   for (const kind of Object.keys(DEFAULT_FOLDERS)) {
@@ -515,7 +560,9 @@ function fmtDay(s) {
   const [y, m, d] = s.split('-').map(Number);
   const base = new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
   const yd = new Date(); yd.setDate(yd.getDate() - 1);
-  return s === todayStr() ? 'Today · ' + base : s === dayStr(yd) ? 'Yesterday · ' + base : base;
+  const tm = new Date(); tm.setDate(tm.getDate() + 1);
+  return s === todayStr() ? 'Today · ' + base : s === dayStr(yd) ? 'Yesterday · ' + base
+       : s === dayStr(tm) ? 'Tomorrow · ' + base : base;
 }
 function fmtTime(t) { if (!t) return ''; const [H, M] = t.split(':').map(Number); return new Date(2000, 0, 1, H, M).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }); }
 const money = n => (S.data.settings.cur || '$') + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -662,7 +709,9 @@ function showLock(msg, kind) {
 function resetToggles() { $$('[data-toggle]').forEach(b => { const i = document.getElementById(b.dataset.toggle); if (i) i.type = 'password'; b.textContent = 'Show'; }); }
 
 function lock(msg) {
-  S = null; editId = editLoginId = null; ui.diary.q = ''; ui.pw.q = ''; fDraft = null;
+  S = null; editId = editLoginId = editTodoId = null; ui.diary.q = ''; ui.pw.q = ''; ui.todo.q = ''; fDraft = null;
+  ['#todoList', '#tOpenN', '#tDoneN'].forEach(s => $(s).replaceChildren());
+  $('.tab[data-tab=todo]').replaceChildren('To Do');
   clearTimeout(clipTimer);
   $$('dialog').forEach(d => { if (d.open) d.close(); });
   $$('#app input, dialog input, dialog textarea').forEach(i => { if (i.type !== 'checkbox' && i.id !== 'sCur') i.value = ''; });
@@ -738,11 +787,11 @@ function enterApp() {
   $('#lockScreen').hidden = true; $('#app').hidden = false; lastAct = Date.now();
   showTab(ui.tab); renderAll();
 }
-function renderAll() { renderFolderChips('diary'); renderFolderChips('pw'); renderDiary(); renderLogins(); renderSettings(); renderBanner(); }
+function renderAll() { renderFolderChips('diary'); renderFolderChips('pw'); renderDiary(); renderTodos(); renderLogins(); renderSettings(); renderBanner(); }
 function showTab(t) {
   ui.tab = t;
   $$('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
-  ['diary', 'pw', 'settings'].forEach(x => { $('#tab-' + x).hidden = x !== t; });
+  ['diary', 'todo', 'pw', 'settings'].forEach(x => { $('#tab-' + x).hidden = x !== t; });
   window.scrollTo(0, 0);
 }
 $$('.tab').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
@@ -816,6 +865,98 @@ $('#eDelete').onclick = async () => {
   if (!ok || !S) return;
   tomb('entries', editId);
   if (await persist()) { $('#entryDlg').close(); renderFolderChips('diary'); renderDiary(); toast('Deleted'); }
+};
+
+/* to-do */
+function renderTodos() {
+  const all = live(S.data.todos), today = todayStr();
+  const open = all.filter(t => !t.done), done = all.filter(t => t.done);
+  const late = open.filter(t => t.date < today).length;
+  $('#tOpenN').textContent = open.length ? ` ${open.length}` : '';
+  $('#tDoneN').textContent = done.length ? ` ${done.length}` : '';
+  $$('#tSeg .seg-b').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === ui.todo.view)));
+  // count on the tab itself; red when something is overdue
+  $('.tab[data-tab=todo]').replaceChildren('To Do', open.length ? h('span', { class: 'tab-n' + (late ? ' late' : '') }, open.length) : '');
+
+  const isOpen = ui.todo.view === 'open';
+  const q = ui.todo.q.trim().toLowerCase();
+  let list = isOpen ? open : done;
+  if (q) list = list.filter(t => [t.title, t.notes, t.date].join(' ').toLowerCase().includes(q));
+  // To Do: oldest date first, so overdue work is at the top. Done: most recently finished first.
+  list.sort(isOpen ? (a, b) => a.date.localeCompare(b.date) || (a.created || 0) - (b.created || 0)
+                   : (a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+  const box = $('#todoList'); box.replaceChildren();
+  if (!list.length) {
+    box.append(q ? emptyState('No matching to-dos.')
+      : isOpen ? emptyState(done.length ? 'All done. Nothing left to do.' : 'No to-dos yet.', 'Tap “+ Add” to plan work for a date.')
+      : emptyState('Nothing marked done yet.', 'Tick the circle next to a to-do when you finish it.'));
+    return;
+  }
+  let cur = null, group;
+  for (const t of list) {
+    const overdue = isOpen && t.date < today;
+    const key = isOpen ? (overdue ? 'late' : t.date) : dayStr(new Date(t.doneAt || t.updated || Date.now()));
+    if (key !== cur) {
+      cur = key;
+      const label = isOpen ? (overdue ? 'Overdue' : fmtDay(t.date)) : 'Done · ' + fmtDay(key);
+      group = h('section', null, h('h3', { class: 'day-h' + (overdue ? ' late' : '') }, label));
+      box.append(group);
+    }
+    const meta = overdue ? h('div', { class: 'sm due-late' }, 'Was due ' + fmtDay(t.date))
+               : !isOpen ? h('div', { class: 'muted sm' }, 'Planned for ' + fmtDay(t.date)) : null;
+    group.append(h('div', { class: 'card todo' + (t.done ? ' done' : '') },
+      h('button', { class: 'tick' + (t.done ? ' on' : ''), 'aria-label': t.done ? 'Move back to To Do' : 'Mark as done',
+                    title: t.done ? 'Move back to To Do' : 'Mark as done', onclick: () => setTodoDone(t.id, !t.done) }, h('i', null, '✓')),
+      h('button', { class: 'todo-main', onclick: () => openTodo(t.id) },
+        h('div', { class: 'title' }, t.title), meta, t.notes ? h('div', { class: 'notes' }, t.notes) : null)));
+  }
+}
+async function setTodoDone(id, done) {
+  if (!S) return;
+  const t = S.data.todos.find(x => x.id === id && !x.deleted); if (!t) return;
+  upsert('todos', { ...t, done, doneAt: done ? Date.now() : 0 });
+  if (await persist()) { renderTodos(); renderBanner(); toast(done ? 'Moved to Done ✓' : 'Moved back to To Do'); }
+}
+function setStatus(s) {
+  tdStatus = s;
+  $$('#tdStatus .seg-b').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.status === s)));
+}
+function openTodo(id) {
+  const t = id ? S.data.todos.find(x => x.id === id && !x.deleted) : null;
+  editTodoId = t ? t.id : null;
+  $('#todoTitle').textContent = t ? 'Edit to-do' : 'New to-do';
+  $('#tdDate').value = t ? t.date : todayStr();
+  $('#tdTitle').value = t ? t.title : '';
+  $('#tdNotes').value = t ? (t.notes || '') : '';
+  setStatus(t && t.done ? 'done' : 'open');
+  $('#tdMeta').textContent = t && t.done && t.doneAt ? 'Marked done ' + new Date(t.doneAt).toLocaleString() : '';
+  $('#tdDelete').hidden = !t;
+  $('#todoDlg').showModal();
+  if (!t && matchMedia('(pointer:fine)').matches) setTimeout(() => $('#tdTitle').focus(), 30);
+}
+$$('#tdStatus .seg-b').forEach(b => b.addEventListener('click', () => setStatus(b.dataset.status)));
+$$('#tSeg .seg-b').forEach(b => b.addEventListener('click', () => { ui.todo.view = b.dataset.view; renderTodos(); }));
+$('#addTodo').onclick = () => openTodo(null);
+$('#tSearch').addEventListener('input', e => { ui.todo.q = e.target.value; renderTodos(); });
+$('#todoForm').addEventListener('submit', async e => {
+  e.preventDefault(); if (!S) return;
+  const title = $('#tdTitle').value.trim(), date = $('#tdDate').value;
+  if (!date || !title) return toast('Add a date and what to do', 'err');
+  const old = editTodoId ? S.data.todos.find(x => x.id === editTodoId) : null;
+  const done = tdStatus === 'done';
+  upsert('todos', { id: editTodoId || newId(), created: old?.created || Date.now(), date, title, notes: $('#tdNotes').value.trim(),
+                    done, doneAt: done ? (old && old.done ? old.doneAt : Date.now()) : 0 });
+  if (await persist()) {
+    $('#todoDlg').close(); renderTodos(); renderBanner();
+    toast(done && !(old && old.done) ? 'Saved to Done ✓' : 'Saved');
+  }
+});
+$('#tdDelete').onclick = async () => {
+  if (!editTodoId) return;
+  const ok = await ask({ title: 'Delete this to-do?', msg: 'This can’t be undone. To keep a record of finished work, mark it Done instead.', ok: 'Delete', danger: true });
+  if (!ok || !S) return;
+  tomb('todos', editTodoId);
+  if (await persist()) { $('#todoDlg').close(); renderTodos(); toast('Deleted'); }
 };
 
 /* passwords */
@@ -997,7 +1138,7 @@ $('#fDelete').onclick = async () => {
   if (await persist()) { $('#folderDlg').close(); fDraft = null; renderFolderList(); renderAll(); toast('Folder deleted'); }
 };
 function renderBanner() {
-  const st = S.data.settings, has = S.data.entries.some(x => !x.deleted) || S.data.logins.some(x => !x.deleted);
+  const st = S.data.settings, has = ['entries', 'logins', 'todos'].some(k => S.data[k].some(x => !x.deleted));
   const stale = !st.lastBackup || Date.now() - st.lastBackup > 7 * 864e5;
   $('#backupBanner').hidden = !(has && stale);
   $('#backupBannerText').textContent = st.lastBackup ? 'Last backup was over a week ago.' : 'Your data lives only on this device. Make a backup.';
@@ -1021,7 +1162,7 @@ $('#bannerBackup').onclick = exportBackup;
 
 function merge(d) {
   let added = 0, updated = 0;
-  for (const k of ['entries', 'logins']) {
+  for (const k of ['entries', 'logins', 'todos']) {
     const m = new Map(S.data[k].map(x => [x.id, x]));
     for (const x of (d[k] || [])) {
       if (!x || !x.id) continue;
