@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: 'self'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex,nofollow">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -89,7 +91,7 @@ input:focus,select:focus,textarea:focus,.btn:focus-visible,.chip:focus-visible,.
 /* app chrome */
 .top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--border);padding:calc(env(safe-area-inset-top) + 10px) 16px 10px}
 .top-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:10px}
-.top-inner strong{font-size:16px}
+.top-inner strong{font-size:16px;white-space:nowrap}
 main{max-width:760px;margin:0 auto;padding:16px 16px calc(96px + env(safe-area-inset-bottom))}
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--border);display:flex;gap:4px;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
 .tab{flex:1;border:0;background:transparent;border-radius:10px;padding:10px 6px;font-weight:600;color:var(--muted);cursor:pointer;min-height:46px}
@@ -141,6 +143,8 @@ main{max-width:760px;margin:0 auto;padding:16px 16px calc(96px + env(safe-area-i
 .day-h.late{color:var(--danger)}
 .tab-n{display:inline-block;min-width:20px;padding:0 6px;margin-left:6px;border-radius:999px;background:var(--surface-2);color:var(--text);font-size:12px;line-height:20px;font-variant-numeric:tabular-nums}
 .tab-n.late{background:var(--danger);color:#fff}
+.net{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--warn-soft);color:var(--warn-ink);white-space:nowrap}
+.ok-t{color:var(--pos);font-weight:600}
 .stats{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:2px 2px 4px;font-variant-numeric:tabular-nums}
 .stats b{color:var(--text);font-weight:650}
 .day-h{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:18px 2px 8px}
@@ -248,6 +252,7 @@ body.veil .lock,body.veil #app,body.veil dialog{filter:blur(22px)}
   <header class="top"><div class="top-inner">
     <div class="mark small"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="white" stroke-width="2.4" stroke-linecap="round"/><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="white"/></svg></div>
     <strong>Private Vault</strong><span class="spacer"></span>
+    <span class="net" id="netBadge" hidden title="No internet. Everything you add is still saved on this device.">● Offline</span>
     <button class="btn" id="lockBtn">Lock</button>
   </div></header>
 
@@ -304,7 +309,13 @@ body.veil .lock,body.veil #app,body.veil dialog{filter:blur(22px)}
       <h2 class="sec-h">Backup &amp; sync between devices</h2>
       <div class="set-group">
         <div class="set-row"><div class="grow"><div class="t">Export encrypted backup</div><div class="muted sm" id="sLastBackup">Never backed up</div></div><button class="btn" id="sExport">Export</button></div>
+        <div class="set-row" id="sShareRow" hidden><div class="grow"><div class="t">Send backup</div><div class="muted sm">Straight to WhatsApp, Gmail or Drive, to open on your other device</div></div><button class="btn" id="sShare">Send</button></div>
         <div class="set-row"><div class="grow"><div class="t">Import &amp; merge backup</div><div class="muted sm">Combine with a backup from your other device</div></div><button class="btn" id="sImport">Import</button><input type="file" id="sImportFile" hidden></div>
+      </div>
+
+      <h2 class="sec-h">Offline</h2>
+      <div class="set-group">
+        <div class="set-row"><div class="grow"><div class="t">Works without internet</div><div class="muted sm" id="sOffline">Checking…</div></div></div>
       </div>
 
       <h2 class="sec-h">Display</h2>
@@ -317,7 +328,7 @@ body.veil .lock,body.veil #app,body.veil dialog{filter:blur(22px)}
         <div class="set-row"><div class="grow"><div class="t" style="color:var(--danger)">Erase vault on this device</div><div class="muted sm">Deletes everything here. Backup files aren’t affected.</div></div><button class="btn danger" id="sErase">Erase</button></div>
       </div>
 
-      <p class="fineprint">Everything is encrypted with AES-256-GCM using a key derived from your master password (PBKDF2-SHA256, 600,000 rounds, random salt). The password itself is never stored. The page blocks all network access, so nothing can be sent anywhere. Backups are encrypted the same way.</p>
+      <p class="fineprint">Everything is encrypted with AES-256-GCM using a key derived from your master password (PBKDF2-SHA256, 600,000 rounds, random salt). The password itself is never stored. Your data stays on this device: the page cannot send anything over the network, and the offline helper only keeps a copy of the app’s own files. Backups are encrypted the same way.</p>
     </section>
   </main>
 </div>
@@ -1160,6 +1171,32 @@ async function exportBackup() {
 $('#sExport').onclick = exportBackup;
 $('#bannerBackup').onclick = exportBackup;
 
+/* Send backup through the phone's share sheet. Android only shares a short
+   list of file types, so the encrypted backup goes out as a .txt file; Import
+   and Restore read it exactly like a .pvault file. */
+function backupFile(text) {
+  return new File([text], `private-vault-${todayStr()}.pvault.txt`, { type: 'text/plain' });
+}
+function canSendFiles() {
+  try { return !!(navigator.share && navigator.canShare && navigator.canShare({ files: [backupFile('x')] })); }
+  catch (e) { return false; }
+}
+$('#sShareRow').hidden = !canSendFiles();
+$('#sShare').onclick = async () => {
+  if (!S) return;
+  const before = S.data.settings.lastBackup;
+  S.data.settings.lastBackup = Date.now();
+  const file = backupFile(JSON.stringify(await seal()));
+  try {
+    await navigator.share({ files: [file], title: 'Private Vault backup' });
+    await persist(); renderSettings(); renderBanner();
+    toast('Backup sent');
+  } catch (e) {
+    S.data.settings.lastBackup = before;
+    if (e && e.name !== 'AbortError') toast('Could not send. Use Export instead.', 'err');
+  }
+};
+
 function merge(d) {
   let added = 0, updated = 0;
   for (const k of ['entries', 'logins', 'todos']) {
@@ -1241,6 +1278,39 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 window.addEventListener('pagehide', () => { if (S) lock(); });
+
+/* ---------- offline ---------- */
+// The app's files are kept on the device by sw.js, so the vault opens without
+// internet. Data never needed the internet: it is saved here as you type.
+function updateNet() { $('#netBadge').hidden = navigator.onLine; }
+window.addEventListener('online', updateNet);
+window.addEventListener('offline', updateNet);
+updateNet();
+
+async function offlineStatus() {
+  const el = $('#sOffline');
+  if (location.protocol === 'file:') {
+    el.textContent = 'Not needed here: this copy is a file on this device and always opens offline.';
+    return;
+  }
+  if (!('serviceWorker' in navigator) || !window.isSecureContext) {
+    el.textContent = 'This browser can’t keep the app for offline use.';
+    return;
+  }
+  try {
+    const hit = window.caches && await caches.match('./', { ignoreSearch: true });
+    if (navigator.serviceWorker.controller && hit) {
+      el.replaceChildren(h('span', { class: 'ok-t' }, '✓ Ready'), ' — this device can open the vault with no internet.');
+    } else {
+      el.textContent = 'Getting ready… open the vault once more while online.';
+    }
+  } catch (e) { el.textContent = 'Could not check.'; }
+}
+if ('serviceWorker' in navigator && window.isSecureContext && location.protocol !== 'file:') {
+  navigator.serviceWorker.register('sw.js').catch(() => {}).finally(() => setTimeout(offlineStatus, 1500));
+  navigator.serviceWorker.addEventListener('controllerchange', () => setTimeout(offlineStatus, 500));
+}
+offlineStatus();
 
 /* ---------- start ---------- */
 $('#storageWarn').hidden = storageOK();

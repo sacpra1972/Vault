@@ -1,0 +1,1325 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: 'self'; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Vault">
+<meta name="theme-color" content="#f5f4f0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1012" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231d6b58'/%3E%3Cpath d='M24 29v-6a8 8 0 0 1 16 0v6' stroke='white' stroke-width='5' fill='none'/%3E%3Crect x='17' y='28' width='30' height='22' rx='5' fill='white'/%3E%3C/svg%3E">
+<title>Private Vault</title>
+<style>
+:root{
+  --bg:#f5f4f0;--surface:#ffffff;--surface-2:#efede7;--text:#1a1c1f;--muted:#666a70;--border:#e2dfd7;
+  --accent:#1d6b58;--accent-ink:#ffffff;--accent-soft:#e2f0eb;--danger:#b3261e;--danger-soft:#fbe9e7;
+  --warn:#c98f00;--warn-soft:#fff4d6;--warn-ink:#7a5600;--pos:#1d7a4f;--neg:#b3261e;
+  --radius:14px;--shadow:0 1px 2px rgba(20,20,20,.05),0 6px 20px rgba(20,20,20,.05);
+  --p-blue:#3466c9;--p-green:#1d7a4f;--p-orange:#c0670f;--p-red:#c0392b;--p-purple:#6a4bc4;--p-pink:#b8407f;--p-teal:#0f7f86;--p-gold:#9a7400;--p-gray:#6b6f76;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1012;--surface:#171a1d;--surface-2:#1f2327;--text:#e9eaeb;--muted:#9aa0a6;--border:#2a2f34;
+  --accent:#4db892;--accent-ink:#06261b;--accent-soft:#16332a;--danger:#ff7b72;--danger-soft:#3a1714;
+  --warn:#f2c94c;--warn-soft:#352a0c;--warn-ink:#f2c94c;--pos:#4fc98a;--neg:#ff8a80;--shadow:none;
+  --p-blue:#7aa2ff;--p-green:#4fc98a;--p-orange:#f0a04b;--p-red:#ff8a80;--p-purple:#a991ff;--p-pink:#f28cc0;--p-teal:#4fd1d9;--p-gold:#f2c94c;--p-gray:#a3a8ae;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0e1012;--surface:#171a1d;--surface-2:#1f2327;--text:#e9eaeb;--muted:#9aa0a6;--border:#2a2f34;
+  --accent:#4db892;--accent-ink:#06261b;--accent-soft:#16332a;--danger:#ff7b72;--danger-soft:#3a1714;
+  --warn:#f2c94c;--warn-soft:#352a0c;--warn-ink:#f2c94c;--pos:#4fc98a;--neg:#ff8a80;--shadow:none;color-scheme:dark;
+  --p-blue:#7aa2ff;--p-green:#4fc98a;--p-orange:#f0a04b;--p-red:#ff8a80;--p-purple:#a991ff;--p-pink:#f28cc0;--p-teal:#4fd1d9;--p-gold:#f2c94c;--p-gray:#a3a8ae;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+[hidden]{display:none!important}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.muted{color:var(--muted)}.sm{font-size:13px}.center{text-align:center}
+.spacer{flex:1}
+
+/* buttons & fields */
+.btn{appearance:none;border:1px solid var(--border);background:var(--surface);padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:600;min-height:44px;white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.danger{color:var(--danger)}
+.btn.danger-solid{background:var(--danger);color:#fff;border-color:transparent}
+.btn.ghost{border-color:transparent;background:transparent;min-height:36px;padding:6px 10px}
+.btn.block{width:100%}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.link{background:none;border:0;color:var(--accent);font-weight:600;cursor:pointer;padding:8px 4px;font-size:14px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;min-width:0}
+.field>label{font-size:13px;font-weight:600;color:var(--muted)}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface);min-height:44px;font-size:16px;min-width:0}
+textarea{min-height:110px;resize:vertical;line-height:1.45}
+input:focus,select:focus,textarea:focus,.btn:focus-visible,.chip:focus-visible,.tab:focus-visible,.card:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.pw-row{display:flex;gap:6px}
+.pw-row input{flex:1}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14px;margin:2px 0 16px;cursor:pointer}
+.check input{width:20px;height:20px;min-height:0;margin:1px 0 0;flex:none;accent-color:var(--accent)}
+.meter{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;margin-top:2px}
+.meter>i{display:block;height:100%;width:0;transition:width .2s,background .2s;background:var(--danger)}
+.meter[data-lvl="2"]>i{background:var(--warn)}
+.meter[data-lvl="3"]>i,.meter[data-lvl="4"]>i{background:var(--accent)}
+.meter-l{min-height:18px}
+.notice{border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:14px;background:var(--surface-2)}
+.notice.err{background:var(--danger-soft);color:var(--danger)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* lock screen */
+.lock{min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:24px 16px}
+.lock-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:26px 22px 20px;box-shadow:var(--shadow)}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.brand h1{font-size:20px;margin:0;letter-spacing:-.01em}
+.mark{width:44px;height:44px;border-radius:12px;background:var(--accent);display:grid;place-items:center;flex:none}
+.mark svg{width:24px;height:24px}
+.mark.small{width:30px;height:30px;border-radius:9px}
+.mark.small svg{width:16px;height:16px}
+.lock-links{display:flex;justify-content:center;margin-top:8px}
+.lock-foot{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);text-align:center;font-size:12px}
+.lock-card p{margin:0 0 14px}
+
+/* app chrome */
+.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--border);padding:calc(env(safe-area-inset-top) + 10px) 16px 10px}
+.top-inner{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.top-inner strong{font-size:16px;white-space:nowrap}
+main{max-width:760px;margin:0 auto;padding:16px 16px calc(96px + env(safe-area-inset-bottom))}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--border);display:flex;gap:4px;padding:6px 8px calc(6px + env(safe-area-inset-bottom))}
+.tab{flex:1;border:0;background:transparent;border-radius:10px;padding:10px 6px;font-weight:600;color:var(--muted);cursor:pointer;min-height:46px}
+.tab[aria-selected="true"]{background:var(--accent-soft);color:var(--accent)}
+@media (min-width:768px){
+  .tabs{position:static;max-width:760px;margin:14px auto 0;border:1px solid var(--border);border-radius:12px;padding:4px}
+  main{padding-bottom:48px}
+}
+.toolbar{display:flex;gap:8px;margin-bottom:12px}
+.toolbar input{flex:1}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:6px 12px;min-height:34px;cursor:pointer;font-size:14px;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+.chip .n{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"] .n{color:inherit;opacity:.7}
+.chip.manage{border-style:dashed;color:var(--accent);font-weight:600}
+.chips.sub{margin-top:-4px}
+.chips.sub .chip{min-height:30px;padding:4px 10px;font-size:13px;background:var(--surface-2);border-color:transparent}
+.chips.sub .chip[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.sub-tag{color:var(--muted);font-weight:600}
+.f-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.f-row{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:12px;padding:8px 8px 8px 12px;background:var(--surface)}
+.f-row .grow{flex:1;min-width:0}
+.f-row .t{font-weight:600;overflow-wrap:anywhere}
+.f-row .dot{width:12px;height:12px}
+.f-row .mini{min-width:36px}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}
+.swatch{width:36px;height:36px;border-radius:50%;border:3px solid transparent;background:var(--c);cursor:pointer;padding:0}
+.swatch[aria-checked="true"]{border-color:var(--text);box-shadow:inset 0 0 0 2px var(--surface)}
+.sub-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.sub-row{display:flex;gap:6px}
+.sub-row input{flex:1}
+/* to-do */
+.seg{display:flex;gap:4px;padding:4px;margin-bottom:12px;background:var(--surface-2);border-radius:12px}
+.seg-b{flex:1;border:0;background:transparent;border-radius:9px;min-height:40px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg-b[aria-pressed="true"]{background:var(--surface);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.seg-b .n{margin-left:4px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.card.todo{display:flex;align-items:flex-start;gap:6px;padding:8px 12px 8px 4px;cursor:default}
+.tick{width:44px;height:44px;flex:none;display:grid;place-items:center;background:none;border:0;padding:0;cursor:pointer}
+.tick i{width:26px;height:26px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;font-style:normal;font-size:15px;font-weight:800;color:transparent}
+.tick:hover i{border-color:var(--accent)}
+.tick.on i{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.todo-main{flex:1;min-width:0;background:none;border:0;padding:10px 0 4px;text-align:left;cursor:pointer}
+.todo-main .title{margin-top:0}
+.card.todo.done .title{text-decoration:line-through;color:var(--muted)}
+.due-late{color:var(--danger);font-weight:600}
+.day-h.late{color:var(--danger)}
+.tab-n{display:inline-block;min-width:20px;padding:0 6px;margin-left:6px;border-radius:999px;background:var(--surface-2);color:var(--text);font-size:12px;line-height:20px;font-variant-numeric:tabular-nums}
+.tab-n.late{background:var(--danger);color:#fff}
+.net{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;background:var(--warn-soft);color:var(--warn-ink);white-space:nowrap}
+.ok-t{color:var(--pos);font-weight:600}
+.stats{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:2px 2px 4px;font-variant-numeric:tabular-nums}
+.stats b{color:var(--text);font-weight:650}
+.day-h{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:18px 2px 8px}
+.card{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;cursor:pointer}
+.card:hover{border-color:color-mix(in srgb,var(--accent) 35%,var(--border))}
+.row1{display:flex;align-items:center;gap:10px;min-width:0}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:650;color:var(--c)}
+.pill::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c)}
+.amt{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:650;white-space:nowrap}
+.pos{color:var(--pos)}.neg{color:var(--neg)}
+.title{font-weight:600;margin-top:4px;overflow-wrap:anywhere}
+.notes{color:var(--muted);font-size:14px;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere}
+.login{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 12px;cursor:default}
+.login-main{flex:1;display:flex;align-items:center;gap:12px;background:none;border:0;padding:4px 0;text-align:left;cursor:pointer;min-width:0}
+.avatar{width:38px;height:38px;border-radius:10px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;flex:none}
+.login-text{min-width:0}
+.login-text .title,.login-text .sm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
+.login-actions{display:flex;gap:6px;flex:none}
+.mini{border:1px solid var(--border);background:var(--surface-2);border-radius:8px;padding:6px 10px;font-size:13px;font-weight:600;cursor:pointer;min-height:36px}
+.badge{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:1px;background:var(--warn-soft);color:var(--warn-ink)}
+.empty{text-align:center;padding:48px 16px;color:var(--muted)}
+.empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:4px}
+.banner{display:flex;gap:10px;align-items:center;background:var(--warn-soft);color:var(--warn-ink);border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:14px}
+.banner .btn{margin-left:auto;min-height:36px;padding:6px 12px}
+.sec-h{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:18px 4px 8px}
+.sec-h:first-child{margin-top:4px}
+.set-group{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:6px}
+.set-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.set-row:last-child{border-bottom:0}
+.set-row .grow{flex:1;min-width:0}
+.set-row select{width:auto;min-width:110px}
+.set-row .t{font-weight:600}
+.fineprint{margin:18px 4px 0;font-size:12px;color:var(--muted);line-height:1.5}
+
+/* dialogs */
+dialog{border:1px solid var(--border);border-radius:18px;padding:0;width:min(560px,calc(100% - 24px));background:var(--surface);color:var(--text);box-shadow:0 20px 60px rgba(0,0,0,.28);max-height:calc(100dvh - 32px)}
+dialog::backdrop{background:rgba(10,12,14,.5)}
+dialog form{display:flex;flex-direction:column;max-height:calc(100dvh - 34px)}
+.dlg-h{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 12px 18px;border-bottom:1px solid var(--border)}
+.dlg-h h2{font-size:17px;margin:0}
+.dlg-b{padding:16px 18px 2px;overflow:auto}
+.dlg-b p{margin:0 0 14px}
+.dlg-f{display:flex;gap:8px;padding:12px 18px 16px;border-top:1px solid var(--border)}
+
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;z-index:50;box-shadow:0 6px 24px rgba(0,0,0,.2);max-width:calc(100% - 32px);text-align:center;transition:opacity .3s}
+.toast.err{background:var(--danger);color:#fff}
+.toast.out{opacity:0}
+
+/* privacy veil when app is in the background */
+body.veil .lock,body.veil #app,body.veil dialog{filter:blur(22px)}
+</style>
+</head>
+<body>
+
+<!-- ============ LOCK SCREEN ============ -->
+<div class="lock" id="lockScreen">
+  <div class="lock-card">
+    <div class="brand">
+      <div class="mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="white" stroke-width="2.2" stroke-linecap="round"/><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="white"/></svg></div>
+      <div><h1>Private Vault</h1><div class="muted sm">Encrypted · stays on this device</div></div>
+    </div>
+    <div id="lockMsg" class="notice" hidden></div>
+    <div id="storageWarn" class="notice err" hidden>This browser is blocking storage (private mode?). Your vault can’t be saved here.</div>
+
+    <form id="unlockForm" hidden autocomplete="off">
+      <div class="field">
+        <label for="uPw">Master password</label>
+        <div class="pw-row"><input id="uPw" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="button" class="btn" data-toggle="uPw">Show</button></div>
+      </div>
+      <button class="btn primary block" id="unlockBtn" type="submit">Unlock</button>
+      <div class="lock-links"><button type="button" class="link" id="forgotBtn">Forgot password?</button></div>
+    </form>
+
+    <form id="createForm" hidden autocomplete="off">
+      <p class="muted sm">Create a master password. It encrypts everything and <strong>cannot be recovered</strong> — if you forget it, the data is gone for good.</p>
+      <div class="field">
+        <label for="cPw1">Master password</label>
+        <div class="pw-row"><input id="cPw1" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="button" class="btn" data-toggle="cPw1">Show</button></div>
+        <div class="meter" id="cMeter"><i></i></div><div class="meter-l muted sm"></div>
+        <div class="muted sm">12+ characters. Best: 4–5 random words, e.g. <span class="mono">maple-orbit-tiger-cloud-7</span></div>
+      </div>
+      <div class="field">
+        <label for="cPw2">Confirm password</label>
+        <input id="cPw2" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      </div>
+      <label class="check"><input type="checkbox" id="cAck"><span>I’ve written my master password down and stored it somewhere safe.</span></label>
+      <button class="btn primary block" type="submit" id="createBtn">Create vault</button>
+      <div class="lock-links"><button type="button" class="link" id="showRestore">Restore from a backup instead</button></div>
+    </form>
+
+    <form id="restoreForm" hidden autocomplete="off">
+      <p class="muted sm">Choose a <span class="mono">.pvault</span> backup file and enter the master password it was saved with.</p>
+      <div class="field"><label for="rFile">Backup file</label><input id="rFile" type="file"></div>
+      <div class="field"><label for="rPw">Master password</label><input id="rPw" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+      <button class="btn primary block" type="submit" id="restoreBtn">Restore</button>
+      <div class="lock-links"><button type="button" class="link" id="backToCreate">Back</button></div>
+    </form>
+
+    <div class="lock-foot muted">AES-256-GCM · PBKDF2-SHA256, 600,000 rounds · no network access</div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" hidden>
+  <header class="top"><div class="top-inner">
+    <div class="mark small"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 11V8a4 4 0 0 1 8 0v3" stroke="white" stroke-width="2.4" stroke-linecap="round"/><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="white"/></svg></div>
+    <strong>Private Vault</strong><span class="spacer"></span>
+    <span class="net" id="netBadge" hidden title="No internet. Everything you add is still saved on this device.">● Offline</span>
+    <button class="btn" id="lockBtn">Lock</button>
+  </div></header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="diary" aria-selected="true">Diary</button>
+    <button class="tab" role="tab" data-tab="todo" aria-selected="false">To Do</button>
+    <button class="tab" role="tab" data-tab="pw" aria-selected="false">Passwords</button>
+    <button class="tab" role="tab" data-tab="settings" aria-selected="false">Settings</button>
+  </nav>
+
+  <main>
+    <section id="tab-diary">
+      <div id="backupBanner" class="banner" hidden><span id="backupBannerText"></span><button class="btn" id="bannerBackup">Back up</button></div>
+      <div class="toolbar"><input id="dSearch" type="search" placeholder="Search diary" autocomplete="off"><button class="btn primary" id="addEntry">+ Add</button></div>
+      <div class="chips" id="dChips"></div>
+      <div class="chips sub" id="dSubChips"></div>
+      <div class="stats" id="dStats"></div>
+      <div id="diaryList"></div>
+    </section>
+
+    <section id="tab-todo" hidden>
+      <div class="toolbar"><input id="tSearch" type="search" placeholder="Search to-dos" autocomplete="off"><button class="btn primary" id="addTodo">+ Add</button></div>
+      <div class="seg" id="tSeg">
+        <button class="seg-b" data-view="open" aria-pressed="true">To Do<span class="n" id="tOpenN"></span></button>
+        <button class="seg-b" data-view="done" aria-pressed="false">Done<span class="n" id="tDoneN"></span></button>
+      </div>
+      <div id="todoList"></div>
+    </section>
+
+    <section id="tab-pw" hidden>
+      <div class="toolbar"><input id="pSearch" type="search" placeholder="Search passwords" autocomplete="off"><button class="btn primary" id="addLogin">+ Add</button></div>
+      <div class="chips" id="pChips"></div>
+      <div class="chips sub" id="pSubChips"></div>
+      <div class="stats" id="pStats"></div>
+      <div id="pwList"></div>
+    </section>
+
+    <section id="tab-settings" hidden>
+      <h2 class="sec-h">Security</h2>
+      <div class="set-group">
+        <div class="set-row"><div class="grow"><div class="t">Auto-lock</div><div class="muted sm">Lock after no activity</div></div>
+          <select id="sAuto"><option value="1">1 min</option><option value="3">3 min</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option></select></div>
+        <div class="set-row"><div class="grow"><div class="t">Erase after failed unlocks</div><div class="muted sm">Wipes this device’s copy. Keep a backup first.</div></div>
+          <select id="sWipe"><option value="0">Off</option><option value="10">10 tries</option><option value="20">20 tries</option></select></div>
+        <div class="set-row"><div class="grow"><div class="t">Master password</div><div class="muted sm">Re-encrypts the vault with a new key</div></div><button class="btn" id="sChange">Change</button></div>
+      </div>
+
+      <h2 class="sec-h">Folders</h2>
+      <div class="set-group">
+        <div class="set-row"><div class="grow"><div class="t">Diary folders</div><div class="muted sm" id="sDFolders"></div></div><button class="btn" data-manage="diary">Manage</button></div>
+        <div class="set-row"><div class="grow"><div class="t">Password folders</div><div class="muted sm" id="sPFolders"></div></div><button class="btn" data-manage="pw">Manage</button></div>
+      </div>
+
+      <h2 class="sec-h">Backup &amp; sync between devices</h2>
+      <div class="set-group">
+        <div class="set-row"><div class="grow"><div class="t">Export encrypted backup</div><div class="muted sm" id="sLastBackup">Never backed up</div></div><button class="btn" id="sExport">Export</button></div>
+        <div class="set-row" id="sShareRow" hidden><div class="grow"><div class="t">Send backup</div><div class="muted sm">Straight to WhatsApp, Gmail or Drive, to open on your other device</div></div><button class="btn" id="sShare">Send</button></div>
+        <div class="set-row"><div class="grow"><div class="t">Import &amp; merge backup</div><div class="muted sm">Combine with a backup from your other device</div></div><button class="btn" id="sImport">Import</button><input type="file" id="sImportFile" hidden></div>
+      </div>
+
+      <h2 class="sec-h">Offline</h2>
+      <div class="set-group">
+        <div class="set-row"><div class="grow"><div class="t">Works without internet</div><div class="muted sm" id="sOffline">Checking…</div></div></div>
+      </div>
+
+      <h2 class="sec-h">Display</h2>
+      <div class="set-group">
+        <div class="set-row"><div class="grow"><div class="t">Currency symbol</div></div><input id="sCur" maxlength="4" style="width:80px;text-align:center"></div>
+      </div>
+
+      <h2 class="sec-h">Danger zone</h2>
+      <div class="set-group">
+        <div class="set-row"><div class="grow"><div class="t" style="color:var(--danger)">Erase vault on this device</div><div class="muted sm">Deletes everything here. Backup files aren’t affected.</div></div><button class="btn danger" id="sErase">Erase</button></div>
+      </div>
+
+      <p class="fineprint">Everything is encrypted with AES-256-GCM using a key derived from your master password (PBKDF2-SHA256, 600,000 rounds, random salt). The password itself is never stored. Your data stays on this device: the page cannot send anything over the network, and the offline helper only keeps a copy of the app’s own files. Backups are encrypted the same way.</p>
+    </section>
+  </main>
+</div>
+
+<!-- ============ DIALOGS ============ -->
+<dialog id="entryDlg"><form id="entryForm" autocomplete="off">
+  <div class="dlg-h"><h2 id="entryTitle">New entry</h2><button type="button" class="btn ghost" data-close aria-label="Close">✕</button></div>
+  <div class="dlg-b">
+    <div class="grid2">
+      <div class="field"><label for="eDate">Date</label><input id="eDate" type="date" required></div>
+      <div class="field"><label for="eTime">Time</label><input id="eTime" type="time"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label for="eCat">Folder</label><select id="eCat"></select></div>
+      <div class="field" id="eSubField"><label for="eSub">Subfolder</label><select id="eSub"></select></div>
+    </div>
+    <div class="field"><label for="eTitle">Title</label><input id="eTitle" maxlength="200" placeholder="e.g. Paid rent, Flight to Vancouver"></div>
+    <div class="grid2">
+      <div class="field"><label for="eAmount">Amount</label><input id="eAmount" type="number" step="0.01" min="0" inputmode="decimal" placeholder="Optional"></div>
+      <div class="field"><label for="eFlow">Type</label><select id="eFlow"><option value="out">Money out</option><option value="in">Money in</option></select></div>
+    </div>
+    <div class="field"><label for="eNotes">Details</label><textarea id="eNotes" placeholder="Booking ref, who, where… (for accounts, only the last 4 digits)"></textarea></div>
+  </div>
+  <div class="dlg-f"><button type="button" class="btn danger" id="eDelete">Delete</button><span class="spacer"></span><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary">Save</button></div>
+</form></dialog>
+
+<dialog id="todoDlg"><form id="todoForm" autocomplete="off">
+  <div class="dlg-h"><h2 id="todoTitle">New to-do</h2><button type="button" class="btn ghost" data-close aria-label="Close">✕</button></div>
+  <div class="dlg-b">
+    <div class="field"><label for="tdDate">Date</label><input id="tdDate" type="date" required></div>
+    <div class="field"><label for="tdTitle">What to do</label><input id="tdTitle" maxlength="200" placeholder="e.g. Renew passport, pay credit card bill"></div>
+    <div class="field"><label for="tdNotes">Details</label><textarea id="tdNotes" placeholder="Optional"></textarea></div>
+    <div class="field"><label>Status</label>
+      <div class="seg" id="tdStatus" style="margin-bottom:0">
+        <button type="button" class="seg-b" data-status="open" aria-pressed="true">To Do</button>
+        <button type="button" class="seg-b" data-status="done" aria-pressed="false">Done</button>
+      </div></div>
+    <p class="muted sm" id="tdMeta"></p>
+  </div>
+  <div class="dlg-f"><button type="button" class="btn danger" id="tdDelete">Delete</button><span class="spacer"></span><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary">Save</button></div>
+</form></dialog>
+
+<dialog id="loginDlg"><form id="loginForm" autocomplete="off">
+  <div class="dlg-h"><h2 id="loginTitle">New password</h2><button type="button" class="btn ghost" data-close aria-label="Close">✕</button></div>
+  <div class="dlg-b">
+    <div class="field"><label for="lName">Name</label><input id="lName" maxlength="120" placeholder="e.g. RBC online banking"></div>
+    <div class="grid2">
+      <div class="field"><label for="lCat">Folder</label><select id="lCat"></select></div>
+      <div class="field" id="lSubField"><label for="lSub">Subfolder</label><select id="lSub"></select></div>
+    </div>
+    <div class="field"><label for="lUrl">Website</label><input id="lUrl" maxlength="300" placeholder="Optional" autocapitalize="off" spellcheck="false"></div>
+    <div class="field"><label for="lUser">Username / email</label>
+      <div class="pw-row"><input id="lUser" maxlength="200" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="button" class="btn" id="lCopyUser">Copy</button></div></div>
+    <div class="field"><label for="lPass">Password</label>
+      <div class="pw-row"><input id="lPass" class="mono" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"><button type="button" class="btn" data-toggle="lPass">Show</button></div>
+      <div class="meter" id="lMeter"><i></i></div><div class="meter-l muted sm"></div>
+      <div class="pw-row"><button type="button" class="btn" id="lGen">Generate strong</button><button type="button" class="btn" id="lCopyPass">Copy password</button></div>
+    </div>
+    <div class="field"><label for="lNotes">Notes</label><textarea id="lNotes" placeholder="Security questions, recovery codes…"></textarea></div>
+    <p class="muted sm" id="lMeta"></p>
+  </div>
+  <div class="dlg-f"><button type="button" class="btn danger" id="lDelete">Delete</button><span class="spacer"></span><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary">Save</button></div>
+</form></dialog>
+
+<dialog id="changeDlg"><form id="changeForm" autocomplete="off">
+  <div class="dlg-h"><h2>Change master password</h2><button type="button" class="btn ghost" data-close aria-label="Close">✕</button></div>
+  <div class="dlg-b">
+    <div class="field"><label for="chCur">Current password</label><input id="chCur" type="password" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <div class="field"><label for="chNew">New password</label><input id="chNew" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <div class="meter" id="chMeter"><i></i></div><div class="meter-l muted sm"></div></div>
+    <div class="field"><label for="chNew2">Confirm new password</label><input id="chNew2" type="password" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <p class="muted sm">Old backup files keep the old password. Export a fresh backup afterwards.</p>
+  </div>
+  <div class="dlg-f"><span class="spacer"></span><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary" id="chBtn">Change</button></div>
+</form></dialog>
+
+<dialog id="foldersDlg"><form id="foldersForm" autocomplete="off">
+  <div class="dlg-h"><h2 id="fsTitle">Folders</h2><button type="button" class="btn ghost" data-close aria-label="Close">✕</button></div>
+  <div class="dlg-b">
+    <p class="muted sm">Tap Edit to rename a folder, change its colour, add subfolders or delete it. Use ↑ ↓ to change the order.</p>
+    <div class="f-list" id="fsList"></div>
+  </div>
+  <div class="dlg-f"><button type="button" class="btn primary" id="fsNew">+ New folder</button><span class="spacer"></span><button type="button" class="btn" data-close>Done</button></div>
+</form></dialog>
+
+<dialog id="folderDlg"><form id="folderForm" autocomplete="off">
+  <div class="dlg-h"><h2 id="fTitle">New folder</h2><button type="button" class="btn ghost" data-close aria-label="Close">✕</button></div>
+  <div class="dlg-b">
+    <div class="field"><label for="fName">Folder name</label><input id="fName" maxlength="40" placeholder="e.g. Passport"></div>
+    <div class="field"><label>Colour</label><div class="swatches" id="fSwatches" role="radiogroup" aria-label="Colour"></div></div>
+    <div class="field"><label>Subfolders</label>
+      <div class="sub-rows" id="fSubs"></div>
+      <div><button type="button" class="btn" id="fAddSub">+ Add subfolder</button></div>
+    </div>
+    <p class="muted sm" id="fMeta"></p>
+  </div>
+  <div class="dlg-f"><button type="button" class="btn danger" id="fDelete">Delete</button><span class="spacer"></span><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary">Save</button></div>
+</form></dialog>
+
+<dialog id="askDlg"><form id="askForm" autocomplete="off">
+  <div class="dlg-h"><h2 id="aTitle"></h2><button type="button" class="btn ghost" data-close aria-label="Close">✕</button></div>
+  <div class="dlg-b">
+    <p id="aMsg" class="muted"></p>
+    <div class="field" id="aField"><input id="aInput" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+  </div>
+  <div class="dlg-f"><span class="spacer"></span><button type="button" class="btn" data-close>Cancel</button><button type="submit" class="btn primary" id="aOk">OK</button></div>
+</form></dialog>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+const STORE = 'pv.vault.v1', FAILK = 'pv.fail.v1', WIPEK = 'pv.wipe.v1';
+const ITER = 600000, MAGIC = 'PrivateVault';
+const te = new TextEncoder(), td = new TextDecoder();
+const PALETTE = ['blue', 'green', 'orange', 'red', 'purple', 'pink', 'teal', 'gold', 'gray'];
+// Default folders. The diary ids match the old fixed categories, so entries
+// saved before folders existed land in the right place without any rewrite.
+const DEFAULT_FOLDERS = {
+  diary: [['event', 'Event', 'blue'], ['banking', 'Banking', 'green'], ['travel', 'Travel', 'orange'], ['health', 'Health', 'red'],
+          ['work', 'Work', 'purple'], ['personal', 'Personal', 'pink'], ['other', 'Other', 'gray']],
+  pw: [['banking', 'Banking', 'green'], ['email', 'Email', 'blue'], ['social', 'Social', 'pink'],
+       ['shopping', 'Shopping', 'orange'], ['work', 'Work', 'purple'], ['other', 'Other', 'gray']]
+};
+const KIND = { diary: { list: 'entries', label: 'Diary', noun: 'entry', nouns: 'entries' },
+               pw: { list: 'logins', label: 'Password', noun: 'login', nouns: 'logins' } };
+const UNFILED = { id: '', name: 'Unfiled', color: 'gray', subs: [] };
+
+let S = null;              // unlocked state: {key, salt, iter, data} — only in memory
+let lastAct = Date.now(), hiddenAt = 0, clipTimer = 0, lockTick = 0;
+let editId = null, editLoginId = null, fDraft = null, fsKind = 'diary';
+const ui = { tab: 'diary', diary: { q: '', cat: 'all', sub: 'all' }, pw: { q: '', cat: 'all', sub: 'all' }, todo: { q: '', view: 'open' } };
+let editTodoId = null, tdStatus = 'open';
+
+/* ---------- storage ---------- */
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } };
+const lsDel = k => { try { localStorage.removeItem(k); } catch (e) {} };
+const storageOK = () => { try { localStorage.setItem('pv.t', '1'); localStorage.removeItem('pv.t'); return true; } catch (e) { return false; } };
+
+/* ---------- bytes ---------- */
+const rand = n => crypto.getRandomValues(new Uint8Array(n));
+function toB64(buf) { const u = new Uint8Array(buf); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); }
+function fromB64(s) { const b = atob(s); const u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+const newId = () => [...rand(9)].map(b => b.toString(16).padStart(2, '0')).join('');
+
+/* ---------- crypto ---------- */
+async function deriveKey(pw, salt, iter) {
+  const base = await crypto.subtle.importKey('raw', te.encode(pw.normalize('NFKC')), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: iter }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+const aad = (iter, saltB64) => te.encode(MAGIC + '|v1|' + iter + '|' + saltB64);
+async function seal() {
+  const iv = rand(12), saltB = toB64(S.salt);
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: aad(S.iter, saltB) }, S.key, te.encode(JSON.stringify(S.data)));
+  return { app: MAGIC, v: 1, kdf: 'PBKDF2-SHA256', iter: S.iter, salt: saltB, iv: toB64(iv), ct: toB64(ct) };
+}
+async function unseal(env, pw) {
+  if (!env || env.app !== MAGIC || env.v !== 1) throw new Error('format');
+  const iter = env.iter | 0;
+  if (iter < 100000 || iter > 10000000) throw new Error('format');
+  const salt = fromB64(env.salt);
+  const key = await deriveKey(pw, salt, iter);
+  let pt;
+  try { pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(env.iv), additionalData: aad(iter, env.salt) }, key, fromB64(env.ct)); }
+  catch (e) { throw new Error('badpw'); }
+  return { key, salt, iter, data: normalize(JSON.parse(td.decode(pt))) };
+}
+function normalize(d) {
+  d = d && typeof d === 'object' ? d : {};
+  d.entries = Array.isArray(d.entries) ? d.entries : [];
+  d.logins = Array.isArray(d.logins) ? d.logins : [];
+  d.todos = Array.isArray(d.todos) ? d.todos : [];
+  d.settings = Object.assign({ autoLock: 5, cur: '$', lastBackup: 0 }, d.settings || {});
+  d.folders = d.folders && typeof d.folders === 'object' ? d.folders : {};
+  for (const kind of Object.keys(DEFAULT_FOLDERS)) {
+    if (!Array.isArray(d.folders[kind])) {
+      // updated: 0 so a folder edited or deleted on another device always wins a merge
+      d.folders[kind] = DEFAULT_FOLDERS[kind].map(([id, name, color], i) => ({ id, name, color, order: i, subs: [], updated: 0 }));
+    }
+    d.folders[kind].forEach(f => { if (!Array.isArray(f.subs)) f.subs = []; });
+  }
+  return d;
+}
+async function persist() {
+  if (!S) return false;
+  const env = await seal();
+  if (!lsSet(STORE, JSON.stringify(env))) { toast('Could not save — storage is full or blocked', 'err'); return false; }
+  return true;
+}
+
+/* ---------- password strength & generator ---------- */
+function strength(pw) {
+  if (!pw) return { bits: 0, lvl: 0, label: '' };
+  let pool = 0;
+  if (/[a-z]/.test(pw)) pool += 26;
+  if (/[A-Z]/.test(pw)) pool += 26;
+  if (/[0-9]/.test(pw)) pool += 10;
+  if (/[^a-zA-Z0-9]/.test(pw)) pool += 33;
+  const eff = Math.min(pw.length, new Set(pw).size * 3);
+  let bits = eff * Math.log2(Math.max(pool, 2));
+  if (/(password|passw0rd|qwerty|123456|abcdef|letmein|iloveyou|admin|welcome)/i.test(pw) || /^(.)\1+$/.test(pw)) bits *= 0.35;
+  const lvl = bits < 40 ? 1 : bits < 60 ? 2 : bits < 80 ? 3 : 4;
+  return { bits: Math.round(bits), lvl, label: ['', 'Weak', 'Fair', 'Strong', 'Excellent'][lvl] };
+}
+function randInt(n) { const lim = Math.floor(0x100000000 / n) * n; const b = new Uint32Array(1); let x; do { crypto.getRandomValues(b); x = b[0]; } while (x >= lim); return x % n; }
+function genPw(len = 20) {
+  const sets = ['abcdefghijkmnopqrstuvwxyz', 'ABCDEFGHJKLMNPQRSTUVWXYZ', '23456789', '!@#$%^&*-_=+?'];
+  const all = sets.join(''); const out = sets.map(s => s[randInt(s.length)]);
+  while (out.length < len) out.push(all[randInt(all.length)]);
+  for (let i = out.length - 1; i > 0; i--) { const j = randInt(i + 1); [out[i], out[j]] = [out[j], out[i]]; }
+  return out.join('');
+}
+function bindMeter(inputId, meterId) {
+  const inp = $('#' + inputId), m = $('#' + meterId);
+  const upd = () => { const s = strength(inp.value); m.firstElementChild.style.width = (s.lvl * 25) + '%'; m.dataset.lvl = s.lvl; m.nextElementSibling.textContent = inp.value ? `${s.label} · about ${s.bits} bits` : ''; };
+  inp.addEventListener('input', upd); return upd;
+}
+
+/* ---------- small helpers ---------- */
+function h(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  if (props) for (const [k, v] of Object.entries(props)) {
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const k of kids.flat()) { if (k == null || k === false) continue; e.append(k.nodeType ? k : document.createTextNode(String(k))); }
+  return e;
+}
+const pad = n => String(n).padStart(2, '0');
+const dayStr = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const todayStr = () => dayStr(new Date());
+const nowTime = () => { const d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+function fmtDay(s) {
+  if (!s) return 'No date';
+  const [y, m, d] = s.split('-').map(Number);
+  const base = new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  const yd = new Date(); yd.setDate(yd.getDate() - 1);
+  const tm = new Date(); tm.setDate(tm.getDate() + 1);
+  return s === todayStr() ? 'Today · ' + base : s === dayStr(yd) ? 'Yesterday · ' + base
+       : s === dayStr(tm) ? 'Tomorrow · ' + base : base;
+}
+function fmtTime(t) { if (!t) return ''; const [H, M] = t.split(':').map(Number); return new Date(2000, 0, 1, H, M).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }); }
+const money = n => (S.data.settings.cur || '$') + Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+/* ---------- folders ---------- */
+const live = arr => (arr || []).filter(x => !x.deleted);
+const folders = kind => live(S.data.folders[kind]).sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || a.name.localeCompare(b.name));
+const subsOf = f => live(f && f.subs);
+// The item's folder and subfolder. A folder or subfolder that was deleted
+// leaves its items in place: they show as Unfiled / no subfolder.
+function placeOf(kind, it) {
+  const f = folders(kind).find(x => x.id === (it.cat || '')) || UNFILED;
+  const s = f.id ? subsOf(f).find(x => x.id === it.sub) || null : null;
+  return { f, s };
+}
+const placeLabel = p => p.f.name + (p.s ? ' › ' + p.s.name : '');
+const items = kind => live(S.data[KIND[kind].list]);
+function matchesFolder(kind, it) {
+  const sel = ui[kind];
+  if (sel.cat === 'all') return true;
+  const p = placeOf(kind, it);
+  if (p.f.id !== sel.cat) return false;
+  return sel.sub === 'all' || (sel.sub === '' ? !p.s : p.s && p.s.id === sel.sub);
+}
+function validSelection(kind) {
+  const sel = ui[kind];
+  if (sel.cat === 'all') { sel.sub = 'all'; return; }
+  const f = sel.cat === '' ? UNFILED : folders(kind).find(x => x.id === sel.cat);
+  if (!f) { sel.cat = 'all'; sel.sub = 'all'; return; }
+  if (sel.sub !== 'all' && sel.sub !== '' && !subsOf(f).some(s => s.id === sel.sub)) sel.sub = 'all';
+}
+function renderFolderChips(kind) {
+  validSelection(kind);
+  const sel = ui[kind], all = items(kind);
+  const count = new Map();
+  all.forEach(it => { const id = placeOf(kind, it).f.id; count.set(id, (count.get(id) || 0) + 1); });
+  const rerender = () => { renderFolderChips(kind); kind === 'diary' ? renderDiary() : renderLogins(); };
+  const chip = (label, pressed, onclick, color, n) => h('button', { class: 'chip', 'aria-pressed': String(pressed), onclick },
+    color ? h('span', { class: 'dot', style: `--c:var(--p-${color})` }) : null, label, n != null ? h('span', { class: 'n' }, n) : null);
+  const list = [chip('All', sel.cat === 'all', () => { sel.cat = 'all'; sel.sub = 'all'; rerender(); }, null, all.length || null)];
+  for (const f of folders(kind)) list.push(chip(f.name, sel.cat === f.id, () => { sel.cat = f.id; sel.sub = 'all'; rerender(); }, f.color, count.get(f.id) || null));
+  if (count.get('')) list.push(chip('Unfiled', sel.cat === '', () => { sel.cat = ''; sel.sub = 'all'; rerender(); }, 'gray', count.get('')));
+  list.push(h('button', { class: 'chip manage', onclick: () => openFolders(kind) }, '✎ Folders'));
+  $(kind === 'diary' ? '#dChips' : '#pChips').replaceChildren(...list);
+
+  const subBox = $(kind === 'diary' ? '#dSubChips' : '#pSubChips');
+  const f = sel.cat && sel.cat !== 'all' ? folders(kind).find(x => x.id === sel.cat) : null;
+  const subs = subsOf(f);
+  if (!f || !subs.length) { subBox.replaceChildren(); subBox.hidden = true; return; }
+  const inF = all.filter(it => placeOf(kind, it).f.id === f.id);
+  const sc = new Map(); inF.forEach(it => { const s = placeOf(kind, it).s; const k = s ? s.id : ''; sc.set(k, (sc.get(k) || 0) + 1); });
+  const sl = [chip('All in ' + f.name, sel.sub === 'all', () => { sel.sub = 'all'; rerender(); }, null, inF.length || null)];
+  for (const s of subs) sl.push(chip(s.name, sel.sub === s.id, () => { sel.sub = s.id; rerender(); }, null, sc.get(s.id) || null));
+  if (sc.get('')) sl.push(chip('No subfolder', sel.sub === '', () => { sel.sub = ''; rerender(); }, null, sc.get('')));
+  subBox.replaceChildren(...sl); subBox.hidden = false;
+}
+// Folder + subfolder pickers in the entry and login dialogs.
+function fillPickers(kind, catSel, subSel, subField, cat, sub) {
+  const fs = folders(kind);
+  catSel.replaceChildren(...fs.map(f => h('option', { value: f.id }, f.name)), h('option', { value: '' }, '— No folder —'));
+  catSel.value = fs.some(f => f.id === cat) ? cat : (cat === '' || !fs.length ? '' : fs[0].id);
+  const fillSubs = keep => {
+    const f = fs.find(x => x.id === catSel.value), subs = subsOf(f);
+    subSel.replaceChildren(h('option', { value: '' }, '— None —'), ...subs.map(s => h('option', { value: s.id }, s.name)));
+    subSel.value = subs.some(s => s.id === keep) ? keep : '';
+    subField.hidden = !subs.length;
+  };
+  catSel.onchange = () => fillSubs('');
+  fillSubs(sub);
+}
+// Defaults for a new item: whatever folder/subfolder the list is filtered to.
+function newPlace(kind, fallback) {
+  const sel = ui[kind];
+  if (sel.cat === 'all') return { cat: fallback, sub: '' };
+  return { cat: sel.cat, sub: sel.sub === 'all' ? '' : sel.sub };
+}
+
+function toast(msg, kind) {
+  $$('.toast').forEach(x => x.remove());
+  const host = $$('dialog[open]').pop() || document.body;   // top-most dialog, or the page
+  const t = h('div', { class: 'toast' + (kind === 'err' ? ' err' : ''), role: 'status' }, msg);
+  host.append(t);
+  setTimeout(() => t.classList.add('out'), 2400);
+  setTimeout(() => t.remove(), 2800);
+}
+async function copy(txt, label) {
+  if (!txt) return toast('Nothing to copy', 'err');
+  try { await navigator.clipboard.writeText(txt); }
+  catch (e) {
+    const t = h('textarea', { style: 'position:fixed;top:0;left:0;opacity:0' }); t.value = txt;
+    (document.querySelector('dialog[open]') || document.body).append(t); t.select();
+    try { document.execCommand('copy'); } catch (_) {} t.remove();
+  }
+  toast(label + ' copied · clipboard clears in 30s');
+  clearTimeout(clipTimer);
+  clipTimer = setTimeout(async () => { try { await navigator.clipboard.writeText(' '); } catch (e) {} }, 30000);
+}
+function ask({ title, msg, input = null, placeholder = '', ok = 'OK', danger = false }) {
+  return new Promise(res => {
+    const d = $('#askDlg'), inp = $('#aInput'), okb = $('#aOk');
+    $('#aTitle').textContent = title; $('#aMsg').textContent = msg;
+    $('#aField').hidden = !input; inp.type = input || 'text'; inp.value = ''; inp.placeholder = placeholder;
+    okb.textContent = ok; okb.className = 'btn ' + (danger ? 'danger-solid' : 'primary');
+    let done = false;
+    const finish = v => { if (done) return; done = true; d.removeEventListener('close', onClose); $('#askForm').onsubmit = null; if (d.open) d.close(); inp.value = ''; res(v); };
+    const onClose = () => finish(null);
+    d.addEventListener('close', onClose);
+    $('#askForm').onsubmit = e => { e.preventDefault(); finish(input ? inp.value : true); };
+    d.showModal();
+    if (input) setTimeout(() => inp.focus(), 30);
+  });
+}
+
+/* ---------- failed-attempt lockout ---------- */
+function failState() { try { return JSON.parse(lsGet(FAILK)) || { n: 0, until: 0 }; } catch (e) { return { n: 0, until: 0 }; } }
+function recordFail() {
+  const f = failState(); f.n++;
+  if (f.n >= 3) f.until = Date.now() + Math.min(900, 5 * 2 ** (f.n - 3)) * 1000;
+  lsSet(FAILK, JSON.stringify(f));
+  const w = parseInt(lsGet(WIPEK) || '0', 10);
+  if (w && f.n >= w) { lsDel(STORE); lsDel(FAILK); return 'wiped'; }
+  return f;
+}
+function updateLockout() {
+  clearInterval(lockTick);
+  const f = failState(), btn = $('#unlockBtn');
+  const tick = () => {
+    const left = Math.ceil((f.until - Date.now()) / 1000);
+    if (left > 0) { btn.disabled = true; btn.textContent = `Too many tries · wait ${left}s`; }
+    else { btn.disabled = false; btn.textContent = 'Unlock'; clearInterval(lockTick); }
+  };
+  tick(); if (f.until > Date.now()) lockTick = setInterval(tick, 1000);
+}
+
+/* ---------- lock screen ---------- */
+function setLockMsg(text, kind) { const el = $('#lockMsg'); el.textContent = text || ''; el.className = 'notice' + (kind === 'err' ? ' err' : ''); el.hidden = !text; }
+function showLock(msg, kind) {
+  $('#lockScreen').hidden = false;
+  const has = !!lsGet(STORE);
+  $('#unlockForm').hidden = !has; $('#createForm').hidden = has; $('#restoreForm').hidden = true;
+  setLockMsg(msg || '', kind);
+  updateLockout();
+  if (has && matchMedia('(pointer:fine)').matches) setTimeout(() => $('#uPw').focus(), 50);
+}
+function resetToggles() { $$('[data-toggle]').forEach(b => { const i = document.getElementById(b.dataset.toggle); if (i) i.type = 'password'; b.textContent = 'Show'; }); }
+
+function lock(msg) {
+  S = null; editId = editLoginId = editTodoId = null; ui.diary.q = ''; ui.pw.q = ''; ui.todo.q = ''; fDraft = null;
+  ['#todoList', '#tOpenN', '#tDoneN'].forEach(s => $(s).replaceChildren());
+  $('.tab[data-tab=todo]').replaceChildren('To Do');
+  clearTimeout(clipTimer);
+  $$('dialog').forEach(d => { if (d.open) d.close(); });
+  $$('#app input, dialog input, dialog textarea').forEach(i => { if (i.type !== 'checkbox' && i.id !== 'sCur') i.value = ''; });
+  ['#diaryList', '#pwList', '#dStats', '#pStats', '#dChips', '#dSubChips', '#pChips', '#pSubChips', '#fsList', '#fSubs',
+   '#eCat', '#eSub', '#lCat', '#lSub'].forEach(s => $(s).replaceChildren());
+  resetToggles();
+  $('#app').hidden = true;
+  showLock(msg);
+}
+
+$('#unlockForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  if (failState().until > Date.now()) return;
+  const pw = $('#uPw').value; if (!pw) return;
+  const btn = $('#unlockBtn'); btn.disabled = true; btn.textContent = 'Unlocking…';
+  try {
+    let env; try { env = JSON.parse(lsGet(STORE)); } catch (_) { throw new Error('format'); }
+    S = await unseal(env, pw);
+    lsDel(FAILK); $('#uPw').value = ''; resetToggles(); setLockMsg('');
+    enterApp();
+  } catch (err) {
+    S = null; $('#uPw').value = '';
+    if (err.message === 'badpw') {
+      const r = recordFail();
+      if (r === 'wiped') { showLock('Too many failed attempts — this device’s vault was erased. Restore it from a backup.', 'err'); return; }
+      setLockMsg(r.n >= 3 ? `Wrong password · ${r.n} failed attempts` : 'Wrong password.', 'err');
+    } else setLockMsg('The saved vault looks damaged and can’t be opened. Restore it from a backup.', 'err');
+  } finally { updateLockout(); }
+});
+
+const updCreateMeter = bindMeter('cPw1', 'cMeter');
+$('#createForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const p1 = $('#cPw1').value, p2 = $('#cPw2').value, st = strength(p1);
+  if (p1.length < 12 || st.lvl < 3) return setLockMsg('Use at least 12 characters and reach “Strong”. Tip: 4–5 random words with a number or symbol.', 'err');
+  if (p1 !== p2) return setLockMsg('The two passwords don’t match.', 'err');
+  if (!$('#cAck').checked) return setLockMsg('Please confirm you’ve stored your master password safely.', 'err');
+  const btn = $('#createBtn'); btn.disabled = true; btn.textContent = 'Creating…';
+  try {
+    const salt = rand(16);
+    S = { key: await deriveKey(p1, salt, ITER), salt, iter: ITER, data: normalize({ created: Date.now() }) };
+    if (!await persist()) throw new Error('store');
+    lsDel(FAILK); $('#cPw1').value = $('#cPw2').value = ''; $('#cAck').checked = false; updCreateMeter(); resetToggles(); setLockMsg('');
+    try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (_) {}
+    enterApp(); toast('Vault created');
+  } catch (err) { S = null; setLockMsg('Could not create the vault in this browser.', 'err'); }
+  finally { btn.disabled = false; btn.textContent = 'Create vault'; }
+});
+
+$('#showRestore').onclick = () => { $('#createForm').hidden = true; $('#restoreForm').hidden = false; setLockMsg(''); };
+$('#backToCreate').onclick = () => showLock();
+$('#restoreForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const file = $('#rFile').files[0], pw = $('#rPw').value;
+  if (!file || !pw) return setLockMsg('Choose a backup file and enter its password.', 'err');
+  const btn = $('#restoreBtn'); btn.disabled = true; btn.textContent = 'Restoring…';
+  try {
+    S = await unseal(JSON.parse(await file.text()), pw);
+    if (!await persist()) throw new Error('store');
+    lsDel(FAILK); $('#rPw').value = ''; $('#rFile').value = ''; setLockMsg('');
+    enterApp(); toast('Backup restored');
+  } catch (err) { S = null; setLockMsg(err.message === 'badpw' ? 'Wrong password for this backup.' : 'That file isn’t a valid Private Vault backup.', 'err'); }
+  finally { btn.disabled = false; btn.textContent = 'Restore'; }
+});
+
+$('#forgotBtn').onclick = async () => {
+  const v = await ask({ title: 'Forgot your master password?', msg: 'There is no recovery — the data is encrypted with that password and nobody can decrypt it without it. You can erase this device’s vault and start fresh (or restore a backup whose password you remember). Type ERASE to delete the vault on this device.', input: 'text', placeholder: 'ERASE', ok: 'Erase vault', danger: true });
+  if (v && v.trim() === 'ERASE') { lsDel(STORE); lsDel(FAILK); showLock('Vault erased. Create a new one or restore a backup.'); }
+};
+
+/* ---------- app ---------- */
+function enterApp() {
+  $('#lockScreen').hidden = true; $('#app').hidden = false; lastAct = Date.now();
+  showTab(ui.tab); renderAll();
+}
+function renderAll() { renderFolderChips('diary'); renderFolderChips('pw'); renderDiary(); renderTodos(); renderLogins(); renderSettings(); renderBanner(); }
+function showTab(t) {
+  ui.tab = t;
+  $$('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
+  ['diary', 'todo', 'pw', 'settings'].forEach(x => { $('#tab-' + x).hidden = x !== t; });
+  window.scrollTo(0, 0);
+}
+$$('.tab').forEach(b => b.addEventListener('click', () => showTab(b.dataset.tab)));
+$('#lockBtn').onclick = () => lock('Locked.');
+
+function emptyState(title, sub) { return h('div', { class: 'empty' }, h('strong', null, title), sub || null); }
+function upsert(k, obj) { obj.updated = Date.now(); const arr = S.data[k]; const i = arr.findIndex(x => x.id === obj.id); if (i >= 0) arr[i] = obj; else arr.push(obj); }
+function tomb(k, id) { const arr = S.data[k]; const t = { id, deleted: true, updated: Date.now() }; const i = arr.findIndex(x => x.id === id); if (i >= 0) arr[i] = t; else arr.push(t); }
+
+/* diary */
+function renderDiary() {
+  const list = $('#diaryList'); list.replaceChildren();
+  const q = ui.diary.q.trim().toLowerCase();
+  let items = S.data.entries.filter(x => !x.deleted);
+  const total = items.length;
+  items = items.filter(x => matchesFolder('diary', x));
+  if (q) items = items.filter(x => [x.title, x.notes, placeLabel(placeOf('diary', x)), x.date, x.amount ?? ''].join(' ').toLowerCase().includes(q));
+  items.sort((a, b) => (b.date + (b.time || '')).localeCompare(a.date + (a.time || '')) || (b.updated - a.updated));
+
+  let out = 0, inn = 0;
+  items.forEach(x => { if (x.amount != null) { if (x.flow === 'in') inn += x.amount; else out += x.amount; } });
+  const st = [h('span', null, h('b', null, items.length), items.length === 1 ? ' entry' : ' entries')];
+  if (out) st.push(h('span', null, 'Out ', h('b', { class: 'neg' }, money(out))));
+  if (inn) st.push(h('span', null, 'In ', h('b', { class: 'pos' }, money(inn))));
+  $('#dStats').replaceChildren(...(total ? st : []));
+
+  if (!items.length) { list.append(total ? emptyState('No matching entries.') : emptyState('Your diary is empty.', 'Tap “+ Add” to log an event, a payment or a trip.')); return; }
+  let cur = null, group;
+  for (const it of items) {
+    if (it.date !== cur) { cur = it.date; group = h('section', null, h('h3', { class: 'day-h' }, fmtDay(it.date))); list.append(group); }
+    const p = placeOf('diary', it);
+    group.append(h('button', { class: 'card', onclick: () => openEntry(it.id) },
+      h('div', { class: 'row1' },
+        h('span', { class: 'pill', style: `--c:var(--p-${p.f.color})` }, p.f.name, p.s ? h('span', { class: 'sub-tag' }, '› ' + p.s.name) : null),
+        it.time ? h('span', { class: 'muted sm' }, fmtTime(it.time)) : null,
+        it.amount != null ? h('span', { class: 'amt ' + (it.flow === 'in' ? 'pos' : 'neg') }, (it.flow === 'in' ? '+' : '−') + money(it.amount)) : null),
+      h('div', { class: 'title' }, it.title || '(untitled)'),
+      it.notes ? h('div', { class: 'notes' }, it.notes) : null));
+  }
+}
+function openEntry(id) {
+  const it = id ? S.data.entries.find(x => x.id === id && !x.deleted) : null;
+  editId = it ? it.id : null;
+  $('#entryTitle').textContent = it ? 'Edit entry' : 'New entry';
+  $('#eDate').value = it ? it.date : todayStr();
+  $('#eTime').value = it ? (it.time || '') : nowTime();
+  const np = it ? { cat: placeOf('diary', it).f.id, sub: it.sub || '' } : newPlace('diary', 'event');
+  fillPickers('diary', $('#eCat'), $('#eSub'), $('#eSubField'), np.cat, np.sub);
+  $('#eTitle').value = it ? it.title : '';
+  $('#eAmount').value = it && it.amount != null ? it.amount : '';
+  $('#eFlow').value = it ? (it.flow || 'out') : 'out';
+  $('#eNotes').value = it ? (it.notes || '') : '';
+  $('#eDelete').hidden = !it;
+  $('#entryDlg').showModal();
+}
+$('#addEntry').onclick = () => openEntry(null);
+$('#dSearch').addEventListener('input', e => { ui.diary.q = e.target.value; renderDiary(); });
+$('#entryForm').addEventListener('submit', async e => {
+  e.preventDefault(); if (!S) return;
+  const title = $('#eTitle').value.trim(), date = $('#eDate').value, amt = $('#eAmount').value.trim();
+  if (!date || !title) return toast('Add a date and a title', 'err');
+  const n = amt === '' ? null : Math.abs(Number(amt));
+  if (n !== null && !isFinite(n)) return toast('Amount must be a number', 'err');
+  const old = editId ? S.data.entries.find(x => x.id === editId) : null;
+  upsert('entries', { id: editId || newId(), created: old?.created || Date.now(), date, time: $('#eTime').value, cat: $('#eCat').value, sub: $('#eSubField').hidden ? '' : $('#eSub').value, title, amount: n, flow: $('#eFlow').value, notes: $('#eNotes').value.trim() });
+  if (await persist()) { $('#entryDlg').close(); renderFolderChips('diary'); renderDiary(); renderBanner(); toast('Saved'); }
+});
+$('#eDelete').onclick = async () => {
+  if (!editId) return;
+  const ok = await ask({ title: 'Delete this entry?', msg: 'This can’t be undone.', ok: 'Delete', danger: true });
+  if (!ok || !S) return;
+  tomb('entries', editId);
+  if (await persist()) { $('#entryDlg').close(); renderFolderChips('diary'); renderDiary(); toast('Deleted'); }
+};
+
+/* to-do */
+function renderTodos() {
+  const all = live(S.data.todos), today = todayStr();
+  const open = all.filter(t => !t.done), done = all.filter(t => t.done);
+  const late = open.filter(t => t.date < today).length;
+  $('#tOpenN').textContent = open.length ? ` ${open.length}` : '';
+  $('#tDoneN').textContent = done.length ? ` ${done.length}` : '';
+  $$('#tSeg .seg-b').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === ui.todo.view)));
+  // count on the tab itself; red when something is overdue
+  $('.tab[data-tab=todo]').replaceChildren('To Do', open.length ? h('span', { class: 'tab-n' + (late ? ' late' : '') }, open.length) : '');
+
+  const isOpen = ui.todo.view === 'open';
+  const q = ui.todo.q.trim().toLowerCase();
+  let list = isOpen ? open : done;
+  if (q) list = list.filter(t => [t.title, t.notes, t.date].join(' ').toLowerCase().includes(q));
+  // To Do: oldest date first, so overdue work is at the top. Done: most recently finished first.
+  list.sort(isOpen ? (a, b) => a.date.localeCompare(b.date) || (a.created || 0) - (b.created || 0)
+                   : (a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+  const box = $('#todoList'); box.replaceChildren();
+  if (!list.length) {
+    box.append(q ? emptyState('No matching to-dos.')
+      : isOpen ? emptyState(done.length ? 'All done. Nothing left to do.' : 'No to-dos yet.', 'Tap “+ Add” to plan work for a date.')
+      : emptyState('Nothing marked done yet.', 'Tick the circle next to a to-do when you finish it.'));
+    return;
+  }
+  let cur = null, group;
+  for (const t of list) {
+    const overdue = isOpen && t.date < today;
+    const key = isOpen ? (overdue ? 'late' : t.date) : dayStr(new Date(t.doneAt || t.updated || Date.now()));
+    if (key !== cur) {
+      cur = key;
+      const label = isOpen ? (overdue ? 'Overdue' : fmtDay(t.date)) : 'Done · ' + fmtDay(key);
+      group = h('section', null, h('h3', { class: 'day-h' + (overdue ? ' late' : '') }, label));
+      box.append(group);
+    }
+    const meta = overdue ? h('div', { class: 'sm due-late' }, 'Was due ' + fmtDay(t.date))
+               : !isOpen ? h('div', { class: 'muted sm' }, 'Planned for ' + fmtDay(t.date)) : null;
+    group.append(h('div', { class: 'card todo' + (t.done ? ' done' : '') },
+      h('button', { class: 'tick' + (t.done ? ' on' : ''), 'aria-label': t.done ? 'Move back to To Do' : 'Mark as done',
+                    title: t.done ? 'Move back to To Do' : 'Mark as done', onclick: () => setTodoDone(t.id, !t.done) }, h('i', null, '✓')),
+      h('button', { class: 'todo-main', onclick: () => openTodo(t.id) },
+        h('div', { class: 'title' }, t.title), meta, t.notes ? h('div', { class: 'notes' }, t.notes) : null)));
+  }
+}
+async function setTodoDone(id, done) {
+  if (!S) return;
+  const t = S.data.todos.find(x => x.id === id && !x.deleted); if (!t) return;
+  upsert('todos', { ...t, done, doneAt: done ? Date.now() : 0 });
+  if (await persist()) { renderTodos(); renderBanner(); toast(done ? 'Moved to Done ✓' : 'Moved back to To Do'); }
+}
+function setStatus(s) {
+  tdStatus = s;
+  $$('#tdStatus .seg-b').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.status === s)));
+}
+function openTodo(id) {
+  const t = id ? S.data.todos.find(x => x.id === id && !x.deleted) : null;
+  editTodoId = t ? t.id : null;
+  $('#todoTitle').textContent = t ? 'Edit to-do' : 'New to-do';
+  $('#tdDate').value = t ? t.date : todayStr();
+  $('#tdTitle').value = t ? t.title : '';
+  $('#tdNotes').value = t ? (t.notes || '') : '';
+  setStatus(t && t.done ? 'done' : 'open');
+  $('#tdMeta').textContent = t && t.done && t.doneAt ? 'Marked done ' + new Date(t.doneAt).toLocaleString() : '';
+  $('#tdDelete').hidden = !t;
+  $('#todoDlg').showModal();
+  if (!t && matchMedia('(pointer:fine)').matches) setTimeout(() => $('#tdTitle').focus(), 30);
+}
+$$('#tdStatus .seg-b').forEach(b => b.addEventListener('click', () => setStatus(b.dataset.status)));
+$$('#tSeg .seg-b').forEach(b => b.addEventListener('click', () => { ui.todo.view = b.dataset.view; renderTodos(); }));
+$('#addTodo').onclick = () => openTodo(null);
+$('#tSearch').addEventListener('input', e => { ui.todo.q = e.target.value; renderTodos(); });
+$('#todoForm').addEventListener('submit', async e => {
+  e.preventDefault(); if (!S) return;
+  const title = $('#tdTitle').value.trim(), date = $('#tdDate').value;
+  if (!date || !title) return toast('Add a date and what to do', 'err');
+  const old = editTodoId ? S.data.todos.find(x => x.id === editTodoId) : null;
+  const done = tdStatus === 'done';
+  upsert('todos', { id: editTodoId || newId(), created: old?.created || Date.now(), date, title, notes: $('#tdNotes').value.trim(),
+                    done, doneAt: done ? (old && old.done ? old.doneAt : Date.now()) : 0 });
+  if (await persist()) {
+    $('#todoDlg').close(); renderTodos(); renderBanner();
+    toast(done && !(old && old.done) ? 'Saved to Done ✓' : 'Saved');
+  }
+});
+$('#tdDelete').onclick = async () => {
+  if (!editTodoId) return;
+  const ok = await ask({ title: 'Delete this to-do?', msg: 'This can’t be undone. To keep a record of finished work, mark it Done instead.', ok: 'Delete', danger: true });
+  if (!ok || !S) return;
+  tomb('todos', editTodoId);
+  if (await persist()) { $('#todoDlg').close(); renderTodos(); toast('Deleted'); }
+};
+
+/* passwords */
+function renderLogins() {
+  const list = $('#pwList'); list.replaceChildren();
+  const all = S.data.logins.filter(x => !x.deleted);
+  const q = ui.pw.q.trim().toLowerCase();
+  const counts = new Map(); all.forEach(x => { if (x.pass) counts.set(x.pass, (counts.get(x.pass) || 0) + 1); });
+  let items = all.filter(x => matchesFolder('pw', x));
+  if (q) items = items.filter(x => [x.name, x.user, x.url, placeLabel(placeOf('pw', x))].join(' ').toLowerCase().includes(q));
+  items.sort((a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' }));
+  const reused = all.filter(x => counts.get(x.pass) > 1).length, weak = all.filter(x => x.pass && strength(x.pass).lvl <= 2).length;
+  const st = all.length ? [h('span', null, h('b', null, all.length), all.length === 1 ? ' login' : ' logins')] : [];
+  if (reused) st.push(h('span', null, h('b', { class: 'neg' }, reused), ' reused'));
+  if (weak) st.push(h('span', null, h('b', { class: 'neg' }, weak), ' weak'));
+  $('#pStats').replaceChildren(...st);
+  if (!items.length) { list.append(all.length ? emptyState('No matches.') : emptyState('No passwords saved yet.', 'Tap “+ Add” to store your first login.')); return; }
+  for (const it of items) {
+    const badges = [];
+    if (counts.get(it.pass) > 1) badges.push(h('span', { class: 'badge' }, 'Reused'));
+    else if (it.pass && strength(it.pass).lvl <= 2) badges.push(h('span', { class: 'badge' }, 'Weak'));
+    const p = placeOf('pw', it);
+    list.append(h('div', { class: 'card login' },
+      h('button', { class: 'login-main', onclick: () => openLogin(it.id) },
+        h('div', { class: 'avatar', style: `background:color-mix(in srgb,var(--p-${p.f.color}) 16%,transparent);color:var(--p-${p.f.color})` }, ((it.name || '?').trim()[0] || '?').toUpperCase()),
+        h('div', { class: 'login-text' }, h('div', { class: 'title' }, it.name || '(no name)', ...badges),
+          h('div', { class: 'muted sm' }, [placeLabel(p), it.user || it.url || ''].filter(Boolean).join('  ·  ')))),
+      h('div', { class: 'login-actions' },
+        it.user ? h('button', { class: 'mini', onclick: () => copy(it.user, 'Username') }, 'User') : null,
+        h('button', { class: 'mini', onclick: () => copy(it.pass, 'Password') }, 'Pass'))));
+  }
+}
+const updLoginMeter = bindMeter('lPass', 'lMeter');
+function openLogin(id) {
+  const it = id ? S.data.logins.find(x => x.id === id && !x.deleted) : null;
+  editLoginId = it ? it.id : null;
+  $('#loginTitle').textContent = it ? 'Edit password' : 'New password';
+  $('#lName').value = it ? it.name : ''; $('#lUrl').value = it ? (it.url || '') : '';
+  const np = it ? { cat: placeOf('pw', it).f.id, sub: it.sub || '' } : newPlace('pw', '');
+  fillPickers('pw', $('#lCat'), $('#lSub'), $('#lSubField'), np.cat, np.sub);
+  $('#lUser').value = it ? (it.user || '') : ''; $('#lPass').value = it ? (it.pass || '') : '';
+  $('#lNotes').value = it ? (it.notes || '') : '';
+  $('#lMeta').textContent = it && it.passChanged ? 'Password last changed ' + new Date(it.passChanged).toLocaleDateString() : '';
+  $('#lDelete').hidden = !it;
+  resetToggles(); updLoginMeter();
+  $('#loginDlg').showModal();
+}
+$('#addLogin').onclick = () => openLogin(null);
+$('#pSearch').addEventListener('input', e => { ui.pw.q = e.target.value; renderLogins(); });
+$('#lGen').onclick = () => { $('#lPass').value = genPw(20); $('#lPass').type = 'text'; $('[data-toggle="lPass"]').textContent = 'Hide'; updLoginMeter(); };
+$('#lCopyPass').onclick = () => copy($('#lPass').value, 'Password');
+$('#lCopyUser').onclick = () => copy($('#lUser').value, 'Username');
+$('#loginForm').addEventListener('submit', async e => {
+  e.preventDefault(); if (!S) return;
+  const name = $('#lName').value.trim(), pass = $('#lPass').value;
+  if (!name) return toast('Give it a name', 'err');
+  if (!pass) return toast('Enter or generate a password', 'err');
+  const old = editLoginId ? S.data.logins.find(x => x.id === editLoginId) : null;
+  upsert('logins', { id: editLoginId || newId(), created: old?.created || Date.now(), name, cat: $('#lCat').value, sub: $('#lSubField').hidden ? '' : $('#lSub').value, url: $('#lUrl').value.trim(), user: $('#lUser').value.trim(), pass, notes: $('#lNotes').value.trim(), passChanged: old && old.pass === pass ? (old.passChanged || old.created) : Date.now() });
+  if (await persist()) { $('#loginDlg').close(); renderFolderChips('pw'); renderLogins(); renderBanner(); toast('Saved'); }
+});
+$('#lDelete').onclick = async () => {
+  if (!editLoginId) return;
+  const ok = await ask({ title: 'Delete this password?', msg: 'This can’t be undone.', ok: 'Delete', danger: true });
+  if (!ok || !S) return;
+  tomb('logins', editLoginId);
+  if (await persist()) { $('#loginDlg').close(); renderFolderChips('pw'); renderLogins(); toast('Deleted'); }
+};
+
+/* settings */
+function renderSettings() {
+  const st = S.data.settings;
+  $('#sAuto').value = String(st.autoLock); $('#sCur').value = st.cur || '$';
+  $('#sWipe').value = lsGet(WIPEK) || '0';
+  $('#sLastBackup').textContent = st.lastBackup ? 'Last backup: ' + new Date(st.lastBackup).toLocaleString() : 'Never backed up';
+  const sum = kind => { const fs = folders(kind), n = fs.reduce((a, f) => a + subsOf(f).length, 0);
+    return `${fs.length} folder${fs.length === 1 ? '' : 's'}` + (n ? `, ${n} subfolder${n === 1 ? '' : 's'}` : ''); };
+  $('#sDFolders').textContent = sum('diary'); $('#sPFolders').textContent = sum('pw');
+}
+
+/* folder manager */
+function openFolders(kind) {
+  fsKind = kind;
+  $('#fsTitle').textContent = KIND[kind].label + ' folders';
+  renderFolderList();
+  if (!$('#foldersDlg').open) $('#foldersDlg').showModal();
+}
+function renderFolderList() {
+  const kind = fsKind, fs = folders(kind);
+  const n = new Map(); items(kind).forEach(it => { const id = placeOf(kind, it).f.id; n.set(id, (n.get(id) || 0) + 1); });
+  $('#fsList').replaceChildren(...(fs.length ? fs.map((f, i) => {
+    const subs = subsOf(f);
+    const info = [`${n.get(f.id) || 0} ${n.get(f.id) === 1 ? KIND[kind].noun : KIND[kind].nouns}`]
+      .concat(subs.length ? [subs.map(s => s.name).join(', ')] : []).join('  ·  ');
+    return h('div', { class: 'f-row' },
+      h('span', { class: 'dot', style: `--c:var(--p-${f.color})` }),
+      h('div', { class: 'grow' }, h('div', { class: 't' }, f.name), h('div', { class: 'muted sm' }, info)),
+      h('button', { type: 'button', class: 'mini', 'aria-label': 'Move up', disabled: i === 0 || null, onclick: () => moveFolder(f.id, -1) }, '↑'),
+      h('button', { type: 'button', class: 'mini', 'aria-label': 'Move down', disabled: i === fs.length - 1 || null, onclick: () => moveFolder(f.id, 1) }, '↓'),
+      h('button', { type: 'button', class: 'mini', onclick: () => openFolder(f.id) }, 'Edit'));
+  }) : [emptyState('No folders.', 'Tap “+ New folder” to add one.')]));
+}
+async function moveFolder(id, dir) {
+  const fs = folders(fsKind), i = fs.findIndex(f => f.id === id), j = i + dir;
+  if (i < 0 || j < 0 || j >= fs.length) return;
+  [fs[i], fs[j]] = [fs[j], fs[i]];
+  const now = Date.now();
+  fs.forEach((f, k) => { if (f.order !== k) { f.order = k; f.updated = now; } });
+  if (await persist()) { renderFolderList(); renderAll(); }
+}
+$$('[data-manage]').forEach(b => b.addEventListener('click', () => openFolders(b.dataset.manage)));
+$('#fsNew').onclick = () => openFolder(null);
+
+/* folder editor */
+function openFolder(id) {
+  const f = id ? folders(fsKind).find(x => x.id === id) : null;
+  const used = new Set(folders(fsKind).map(x => x.color));
+  fDraft = { id: f ? f.id : null, name: f ? f.name : '', color: f ? f.color : (PALETTE.find(c => !used.has(c)) || 'blue'),
+             subs: subsOf(f).map(s => ({ id: s.id, name: s.name })) };
+  $('#fTitle').textContent = f ? 'Edit folder' : 'New folder';
+  $('#fName').value = fDraft.name;
+  const n = f ? items(fsKind).filter(it => placeOf(fsKind, it).f.id === f.id).length : 0;
+  $('#fMeta').textContent = f ? `${n} ${n === 1 ? KIND[fsKind].noun : KIND[fsKind].nouns} in this folder.` : '';
+  $('#fDelete').hidden = !f;
+  renderSwatches(); renderSubRows();
+  $('#folderDlg').showModal();
+  if (!f) setTimeout(() => $('#fName').focus(), 30);
+}
+function renderSwatches() {
+  $('#fSwatches').replaceChildren(...PALETTE.map(c => h('button', {
+    type: 'button', class: 'swatch', role: 'radio', 'aria-label': c, 'aria-checked': String(fDraft.color === c),
+    style: `--c:var(--p-${c})`, onclick: () => { fDraft.color = c; renderSwatches(); } })));
+}
+function renderSubRows() {
+  $('#fSubs').replaceChildren(...fDraft.subs.map((s, i) => h('div', { class: 'sub-row' },
+    h('input', { value: s.name, maxlength: '40', placeholder: 'Subfolder name', 'aria-label': 'Subfolder name',
+                 oninput: e => { s.name = e.target.value; } }),
+    h('button', { type: 'button', class: 'btn danger', 'aria-label': 'Remove subfolder', onclick: () => { fDraft.subs.splice(i, 1); renderSubRows(); } }, '✕'))));
+  // h() sets attributes, so put the live values in explicitly
+  $$('#fSubs input').forEach((inp, i) => { inp.value = fDraft.subs[i].name; });
+}
+$('#fAddSub').onclick = () => {
+  fDraft.subs.push({ id: null, name: '' }); renderSubRows();
+  const ins = $$('#fSubs input'); ins[ins.length - 1].focus();
+};
+$('#folderForm').addEventListener('submit', async e => {
+  e.preventDefault(); if (!S || !fDraft) return;
+  const name = $('#fName').value.trim();
+  if (!name) return toast('Give the folder a name', 'err');
+  const kind = fsKind, arr = S.data.folders[kind], now = Date.now();
+  if (folders(kind).some(f => f.id !== fDraft.id && f.name.toLowerCase() === name.toLowerCase())) return toast('A folder with that name already exists', 'err');
+  const subNames = fDraft.subs.map(s => s.name.trim()).filter(Boolean);
+  if (new Set(subNames.map(s => s.toLowerCase())).size !== subNames.length) return toast('Two subfolders have the same name', 'err');
+  let f = fDraft.id ? arr.find(x => x.id === fDraft.id) : null;
+  if (!f) { f = { id: newId(), order: folders(kind).length, subs: [] }; arr.push(f); }
+  f.name = name; f.color = fDraft.color; f.updated = now;
+  const keep = new Set();
+  for (const d of fDraft.subs) {
+    const nm = d.name.trim(); if (!nm) continue;
+    let s = d.id && f.subs.find(x => x.id === d.id);
+    if (!s) { s = { id: newId() }; f.subs.push(s); }
+    if (s.name !== nm || s.deleted) { s.name = nm; delete s.deleted; s.updated = now; }
+    keep.add(s.id);
+  }
+  // removed subfolders become tombstones so the removal syncs; their items stay, with no subfolder
+  f.subs.forEach(s => { if (!keep.has(s.id) && !s.deleted) { s.deleted = true; s.updated = now; } });
+  if (await persist()) { $('#folderDlg').close(); fDraft = null; renderFolderList(); renderAll(); toast('Folder saved'); }
+});
+$('#fDelete').onclick = async () => {
+  if (!fDraft || !fDraft.id) return;
+  const kind = fsKind, f = S.data.folders[kind].find(x => x.id === fDraft.id); if (!f) return;
+  const n = items(kind).filter(it => placeOf(kind, it).f.id === f.id).length;
+  const ok = await ask({ title: `Delete “${f.name}”?`, ok: 'Delete folder', danger: true,
+    msg: n ? `Its ${n} ${n === 1 ? KIND[kind].noun : KIND[kind].nouns} will NOT be deleted — they move to “Unfiled”, where you can give them a new folder.` : 'The folder is empty.' });
+  if (!ok || !S) return;
+  const now = Date.now();
+  f.deleted = true; f.updated = now;
+  if (ui[kind].cat === f.id) { ui[kind].cat = 'all'; ui[kind].sub = 'all'; }
+  if (await persist()) { $('#folderDlg').close(); fDraft = null; renderFolderList(); renderAll(); toast('Folder deleted'); }
+};
+function renderBanner() {
+  const st = S.data.settings, has = ['entries', 'logins', 'todos'].some(k => S.data[k].some(x => !x.deleted));
+  const stale = !st.lastBackup || Date.now() - st.lastBackup > 7 * 864e5;
+  $('#backupBanner').hidden = !(has && stale);
+  $('#backupBannerText').textContent = st.lastBackup ? 'Last backup was over a week ago.' : 'Your data lives only on this device. Make a backup.';
+}
+$('#sAuto').onchange = async e => { S.data.settings.autoLock = Number(e.target.value); await persist(); toast('Auto-lock: ' + e.target.value + ' min'); };
+$('#sWipe').onchange = e => { e.target.value === '0' ? lsDel(WIPEK) : lsSet(WIPEK, e.target.value); toast(e.target.value === '0' ? 'Auto-erase off' : `Erases after ${e.target.value} failed tries`); };
+$('#sCur').onchange = async e => { S.data.settings.cur = e.target.value.trim().slice(0, 4) || '$'; e.target.value = S.data.settings.cur; await persist(); renderDiary(); };
+
+async function exportBackup() {
+  if (!S) return;
+  S.data.settings.lastBackup = Date.now();
+  const env = await seal();
+  const a = h('a', { href: URL.createObjectURL(new Blob([JSON.stringify(env)], { type: 'application/octet-stream' })), download: `private-vault-${todayStr()}.pvault` });
+  document.body.append(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  await persist(); renderSettings(); renderBanner();
+  toast('Encrypted backup saved');
+}
+$('#sExport').onclick = exportBackup;
+$('#bannerBackup').onclick = exportBackup;
+
+/* Send backup through the phone's share sheet. Android only shares a short
+   list of file types, so the encrypted backup goes out as a .txt file; Import
+   and Restore read it exactly like a .pvault file. */
+function backupFile(text) {
+  return new File([text], `private-vault-${todayStr()}.pvault.txt`, { type: 'text/plain' });
+}
+function canSendFiles() {
+  try { return !!(navigator.share && navigator.canShare && navigator.canShare({ files: [backupFile('x')] })); }
+  catch (e) { return false; }
+}
+$('#sShareRow').hidden = !canSendFiles();
+$('#sShare').onclick = async () => {
+  if (!S) return;
+  const before = S.data.settings.lastBackup;
+  S.data.settings.lastBackup = Date.now();
+  const file = backupFile(JSON.stringify(await seal()));
+  try {
+    await navigator.share({ files: [file], title: 'Private Vault backup' });
+    await persist(); renderSettings(); renderBanner();
+    toast('Backup sent');
+  } catch (e) {
+    S.data.settings.lastBackup = before;
+    if (e && e.name !== 'AbortError') toast('Could not send. Use Export instead.', 'err');
+  }
+};
+
+function merge(d) {
+  let added = 0, updated = 0;
+  for (const k of ['entries', 'logins', 'todos']) {
+    const m = new Map(S.data[k].map(x => [x.id, x]));
+    for (const x of (d[k] || [])) {
+      if (!x || !x.id) continue;
+      const y = m.get(x.id);
+      if (!y) { m.set(x.id, x); if (!x.deleted) added++; }
+      else if ((x.updated || 0) > (y.updated || 0)) { m.set(x.id, x); updated++; }
+    }
+    S.data[k] = [...m.values()];
+  }
+  // Folders: newest edit wins per folder, and per subfolder inside it, so a
+  // subfolder added on the phone and one added on the laptop both survive.
+  const newer = (a, b) => (a.updated || 0) > (b.updated || 0);
+  for (const kind of Object.keys(DEFAULT_FOLDERS)) {
+    const mine = S.data.folders[kind];
+    for (const x of ((d.folders || {})[kind] || [])) {
+      if (!x || !x.id) continue;
+      const y = mine.find(f => f.id === x.id);
+      if (!y) { mine.push(JSON.parse(JSON.stringify(x))); continue; }
+      const subs = y.subs || [];
+      for (const xs of (x.subs || [])) {
+        const ys = subs.find(s => s.id === xs.id);
+        if (!ys) subs.push({ ...xs }); else if (newer(xs, ys)) Object.assign(ys, xs);
+      }
+      if (newer(x, y)) { const { subs: _, ...rest } = x; Object.assign(y, rest); if (!x.deleted) delete y.deleted; }
+      y.subs = subs;
+    }
+  }
+  return { added, updated };
+}
+$('#sImport').onclick = () => $('#sImportFile').click();
+$('#sImportFile').addEventListener('change', async e => {
+  const file = e.target.files[0]; e.target.value = ''; if (!file || !S) return;
+  let env; try { env = JSON.parse(await file.text()); if (env.app !== MAGIC) throw 0; } catch (_) { return toast('That isn’t a Private Vault backup', 'err'); }
+  const pw = await ask({ title: 'Backup password', msg: 'Enter the master password this backup was saved with.', input: 'password', ok: 'Merge' });
+  if (!pw || !S) return;
+  try { const other = await unseal(env, pw); const r = merge(other.data); await persist(); renderAll(); toast(`Merged · ${r.added} new, ${r.updated} updated`); }
+  catch (err) { toast(err.message === 'badpw' ? 'Wrong password for that backup' : 'Could not read that backup', 'err'); }
+});
+
+const updChMeter = bindMeter('chNew', 'chMeter');
+$('#sChange').onclick = () => { ['chCur', 'chNew', 'chNew2'].forEach(i => { $('#' + i).value = ''; }); updChMeter(); $('#changeDlg').showModal(); };
+$('#changeForm').addEventListener('submit', async e => {
+  e.preventDefault(); if (!S) return;
+  const cur = $('#chCur').value, n1 = $('#chNew').value, n2 = $('#chNew2').value;
+  if (n1.length < 12 || strength(n1).lvl < 3) return toast('New password: 12+ characters and “Strong”', 'err');
+  if (n1 !== n2) return toast('New passwords don’t match', 'err');
+  const btn = $('#chBtn'); btn.disabled = true; btn.textContent = 'Working…';
+  try {
+    await unseal(JSON.parse(lsGet(STORE)), cur);
+    const salt = rand(16); const key = await deriveKey(n1, salt, ITER);
+    if (!S) return;
+    S.key = key; S.salt = salt; S.iter = ITER;
+    if (await persist()) { $('#changeDlg').close(); toast('Master password changed — export a fresh backup'); }
+  } catch (err) { toast('Current password is wrong', 'err'); }
+  finally { btn.disabled = false; btn.textContent = 'Change'; ['chCur', 'chNew', 'chNew2'].forEach(i => { $('#' + i).value = ''; }); }
+});
+$('#sErase').onclick = async () => {
+  const v = await ask({ title: 'Erase vault on this device?', msg: 'Everything stored here will be deleted. Backup files are not affected. Type ERASE to confirm.', input: 'text', placeholder: 'ERASE', ok: 'Erase', danger: true });
+  if (v && v.trim() === 'ERASE') { lsDel(STORE); lsDel(FAILK); lock('Vault erased from this device.'); }
+};
+
+/* ---------- global behaviour ---------- */
+$$('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-toggle]'); if (!b) return;
+  const i = document.getElementById(b.dataset.toggle); const show = i.type === 'password';
+  i.type = show ? 'text' : 'password'; b.textContent = show ? 'Hide' : 'Show';
+});
+['pointerdown', 'keydown', 'input', 'wheel', 'touchstart'].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); }, { capture: true, passive: true }));
+setInterval(() => { if (S && Date.now() - lastAct > S.data.settings.autoLock * 60000) lock('Locked after inactivity.'); }, 5000);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { document.body.classList.add('veil'); hiddenAt = Date.now(); }
+  else {
+    if (S && hiddenAt && Date.now() - hiddenAt > 60000) lock('Locked while you were away.');
+    hiddenAt = 0; document.body.classList.remove('veil');
+  }
+});
+window.addEventListener('pagehide', () => { if (S) lock(); });
+
+/* ---------- offline ---------- */
+// The app's files are kept on the device by sw.js, so the vault opens without
+// internet. Data never needed the internet: it is saved here as you type.
+function updateNet() { $('#netBadge').hidden = navigator.onLine; }
+window.addEventListener('online', updateNet);
+window.addEventListener('offline', updateNet);
+updateNet();
+
+async function offlineStatus() {
+  const el = $('#sOffline');
+  if (location.protocol === 'file:') {
+    el.textContent = 'Not needed here: this copy is a file on this device and always opens offline.';
+    return;
+  }
+  if (!('serviceWorker' in navigator) || !window.isSecureContext) {
+    el.textContent = 'This browser can’t keep the app for offline use.';
+    return;
+  }
+  try {
+    const hit = window.caches && await caches.match('./', { ignoreSearch: true });
+    if (navigator.serviceWorker.controller && hit) {
+      el.replaceChildren(h('span', { class: 'ok-t' }, '✓ Ready'), ' — this device can open the vault with no internet.');
+    } else {
+      el.textContent = 'Getting ready… open the vault once more while online.';
+    }
+  } catch (e) { el.textContent = 'Could not check.'; }
+}
+if ('serviceWorker' in navigator && window.isSecureContext && location.protocol !== 'file:') {
+  navigator.serviceWorker.register('sw.js').catch(() => {}).finally(() => setTimeout(offlineStatus, 1500));
+  navigator.serviceWorker.addEventListener('controllerchange', () => setTimeout(offlineStatus, 500));
+}
+offlineStatus();
+
+/* ---------- start ---------- */
+$('#storageWarn').hidden = storageOK();
+showLock();
+if (!window.crypto || !crypto.subtle) {
+  setLockMsg('This browser can’t run the encryption from here. Open the file in Chrome, Edge, Firefox or Safari, or from an https:// address.', 'err');
+  $$('#lockScreen button[type=submit]').forEach(b => { b.disabled = true; });
+}
+})();
+</script>
+</body>
+</html>
